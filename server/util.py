@@ -36,6 +36,7 @@ def get_kline(request):
     id_tuple = ()
     start_date = request_param["start_date"]
     end_date = request_param["end_date"]
+    traget_date = get_last_monitor_date(request_param["traget_date"])
     table_map = {"monitor":"monitor", "retracement":"remen_retracement", "single_limit":"limit_up_single"}
     #查询单支股票
     if request_param["type"] == 'single':
@@ -45,7 +46,7 @@ def get_kline(request):
     #查询监控类股票
     elif request_param["type"] in table_map:
         sql = "select stock_id from {} where trade_date = '{}'" \
-              "".format(table_map[request_param["type"]],request_param["traget_date"])
+              "".format(table_map[request_param["type"]],traget_date)
         id_tuple_res = pub_uti_a.select_from_db(sql)
         id_list = []
         for id in id_tuple_res:
@@ -77,6 +78,86 @@ def get_kline(request):
             kline_json[id].append(row)
         else:
             kline_json[id] = [row]
-    response_json['data'] = json.dumps(kline_json, indent=2, ensure_ascii=False)
+    # response_json['data'] = json.dumps(kline_json, indent=2, ensure_ascii=False)
+    response_json['data'] = kline_json
 
     return response_json
+"""
+获取algo实时数据
+Request：
+{  
+    "type:"monitor",  
+    "traget_date":"None" #有监控结果的最后一日  
+}
+Response:
+{
+    "code":"200",
+    "message":"请求成功",
+    "data":{  
+        "003853":{
+                "id":"003853",
+                "name":"洪都航空",
+                "grade":105.1,
+                "price":39.5,
+                "increase":9.0,
+                "bk":"航空航天",
+                "bk_increase":3.25,
+                "bk_sort":2,
+                "in_sort":5,
+                "concept":"大飞机",
+                "concept_increase":5,
+                "monitor_type":"热门回撤",
+            }
+        "002963":{
+                ···
+            }
+        }
+}
+"""
+def get_algo(request):
+    request_param = json.loads(request.body)
+    response_json = {"code": 200, "message": "请求成功", "data": ""}
+    if request.method != 'POST':
+        response_json = {"code": 502, "message": "请求方法错误", "data": ""}
+        return response_json
+    eg_data = {
+        "003853":{
+                "id":"003853",
+                "name":"洪都航空",
+                "grade":105.1,
+                "price":39.5,
+                "increase":9.0,
+                "bk":"航空航天",
+                "bk_increase":3.25,
+                "bk_sort":2,
+                "in_sort":5,
+                "concept":"大飞机",
+                "concept_increase":5,
+                "monitor_type":"热门回撤",
+            },
+        "002963":{
+                "id":"002963",
+                "name":"比亚迪",
+                "grade":95.1,
+                "price":239.5,
+                "increase":4.0,
+                "bk":"汽车整车",
+                "bk_increase":2.15,
+                "bk_sort":4,
+                "in_sort":9,
+                "concept":"锂电池",
+                "concept_increase":1,
+                "monitor_type":"单涨停回撤",
+            },
+        }
+    response_json['data'] = eg_data
+    return response_json
+
+# 辅助函数
+
+def get_last_monitor_date(traget_date):
+    if traget_date != 'None':
+        return traget_date
+    sql = "select max(trade_date) from monitor"
+    last_date = pub_uti_a.select_from_db(sql)[0][0]
+    return last_date

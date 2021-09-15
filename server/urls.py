@@ -10,4 +10,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('k_line/', views.stock_k_line),
     path('time_line/', views.stock_time_line),
+    path('monitor/algo_monitor/', views.algo_monitor),
 ]

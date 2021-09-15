@@ -25,3 +25,7 @@ def stock_k_line(request):
 def stock_time_line(request):
     pass
 
+#algo_monitor
+def algo_monitor(request):
+    response_json = util.get_algo(request)
+    return JsonResponse(response_json)
