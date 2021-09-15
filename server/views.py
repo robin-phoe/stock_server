@@ -2,14 +2,26 @@ from django.shortcuts import render
 
 # Create your views here.
 from rest_framework import viewsets
-
-from server.models import stocks
+from django.http import HttpResponse,JsonResponse
+from server.models import StockTradeData
+from server.models import RemenXiaoboxin
 from server.serializer import stocksSerializer
+from server.serializer import stocksSerializer1
+
+from . import util
 
 
-class stocksViewSet(viewsets.ModelViewSet):
-    queryset = stocks.objects.all()
-    serializer_class = stocksSerializer
+# class stocksViewSet(viewsets.ModelViewSet):
+#     # pass
+#     queryset = RemenXiaoboxin.objects.all()
+#     serializer_class = stocksSerializer1
 
-class stock_k_line():
+#日k_line
+def stock_k_line(request):
+    response_json = util.get_kline(request)
+    return JsonResponse(response_json)
+
+#分时
+def stock_time_line(request):
     pass
+

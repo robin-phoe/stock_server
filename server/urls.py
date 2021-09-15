@@ -3,11 +3,11 @@ from rest_framework.routers import DefaultRouter
 
 from server import views
 
-
 router = DefaultRouter()
-router.register('main', views.stocksViewSet)
-router.register('k_line', views.stocksViewSet)
-
+# router.register('k', views.stocksViewSet)
+# router.register('k', views.stock_k_line)
 urlpatterns = [
     path('', include(router.urls)),
+    path('k_line/', views.stock_k_line),
+    path('time_line/', views.stock_time_line),
 ]
