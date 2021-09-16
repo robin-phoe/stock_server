@@ -120,36 +120,36 @@ def get_algo(request):
     if request.method != 'POST':
         response_json = {"code": 502, "message": "请求方法错误", "data": ""}
         return response_json
-    eg_data = {
-        "003853":{
-                "id":"003853",
-                "name":"洪都航空",
-                "grade":105.1,
-                "price":39.5,
-                "increase":9.0,
-                "bk":"航空航天",
-                "bk_increase":3.25,
-                "bk_sort":2,
-                "in_sort":5,
-                "concept":"大飞机",
-                "concept_increase":5,
-                "monitor_type":"热门回撤",
-            },
-        "002963":{
-                "id":"002963",
-                "name":"比亚迪",
-                "grade":95.1,
-                "price":239.5,
-                "increase":4.0,
-                "bk":"汽车整车",
-                "bk_increase":2.15,
-                "bk_sort":4,
-                "in_sort":9,
-                "concept":"锂电池",
-                "concept_increase":1,
-                "monitor_type":"单涨停回撤",
-            },
-        }
+    eg_data = [
+        {
+            "id":"003853",
+            "name":"洪都航空",
+            "grade":105.1,
+            "price":39.5,
+            "increase":9.0,
+            "bk":"航空航天",
+            "bk_increase":3.25,
+            "bk_sort":2,
+            "in_sort":5,
+            "concept":"大飞机",
+            "concept_increase":5,
+            "monitor_type":"热门回撤",
+        },
+        {
+            "id":"002963",
+            "name":"比亚迪",
+            "grade":95.1,
+            "price":239.5,
+            "increase":4.0,
+            "bk":"汽车整车",
+            "bk_increase":2.15,
+            "bk_sort":4,
+            "in_sort":9,
+            "concept":"锂电池",
+            "concept_increase":1,
+            "monitor_type":"单涨停回撤",
+        },
+        ]
     response_json['data'] = eg_data
     return response_json
 
