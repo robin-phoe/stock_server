@@ -42,6 +42,37 @@ def getOnePageStock():
 
 """
 日内行情保存至redis
+new_maket={
+    id:{
+        "timestamp":timestamp,
+        "id": id, 
+        "name": name, 
+        "price": price, 
+        "increase": increase, 
+        "volume": volume,
+        "volume_rate": volume_rate, 
+        "turnover": turnover, 
+        "volume_money": volume_money
+        }
+    }
+all_market={
+    id:{
+            timestamp:{
+                "timestamp":timestamp,
+                "id": id, 
+                "name": name, 
+                "price": price, 
+                "increase": increase, 
+                "volume": volume,
+                "volume_rate": volume_rate, 
+                "turnover": turnover, 
+                "volume_money": volume_money
+            },
+            timestamp:{
+                ···
+            }
+        }
+    }
 """
 def time_trade_to_redis(Data_json):
     for data in Data_json:
@@ -108,6 +139,34 @@ def get_bk_info():
 
 """
 板块行情保存至redis
+bk_single_market={
+    "id":{
+    "timestamp":timestamp,
+    "id": id, 
+    "name": name, 
+    "price": price, 
+    "increase": increase,
+    "volume": volume, 
+    "turnover": turnover,
+    "up":up,
+    "down":down
+    }
+}
+bk_day_market={
+    "id":{
+        "time_stamp":{
+                "timestamp":timestamp,
+                "id": id, 
+                "name": name, 
+                "price": price, 
+                "increase": increase,
+                "volume": volume, 
+                "turnover": turnover,
+                "up":up,
+                "down":down
+            }
+    }
+}
 """
 def bk_to_redis(Data_json):
     for data in Data_json:
