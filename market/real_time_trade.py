@@ -42,7 +42,7 @@ def getOnePageStock():
 
 """
 日内行情保存至redis
-new_maket={
+single_market={
     id:{
         "timestamp":timestamp,
         "id": id, 
@@ -55,7 +55,7 @@ new_maket={
         "volume_money": volume_money
         }
     }
-all_market={
+day_market={
     id:{
             timestamp:{
                 "timestamp":timestamp,

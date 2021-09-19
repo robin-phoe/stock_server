@@ -1,5 +1,7 @@
 import pub_uti_a
 import json
+import redis
+r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 """
 获取k线数据
 Request:
@@ -120,41 +122,55 @@ def get_algo(request):
     if request.method != 'POST':
         response_json = {"code": 502, "message": "请求方法错误", "data": ""}
         return response_json
-    eg_data = [
-        {
-            "id":"003853",
-            "name":"洪都航空",
-            "grade":105.1,
-            "price":39.5,
-            "increase":9.0,
-            "bk":"航空航天",
-            "bk_increase":3.25,
-            "bk_sort":2,
-            "in_sort":5,
-            "concept":"大飞机",
-            "concept_increase":5,
-            "monitor_type":"热门回撤",
-        },
-        {
-            "id":"002963",
-            "name":"比亚迪",
-            "grade":95.1,
-            "price":239.5,
-            "increase":4.0,
-            "bk":"汽车整车",
-            "bk_increase":2.15,
-            "bk_sort":4,
-            "in_sort":9,
-            "concept":"锂电池",
-            "concept_increase":1,
-            "monitor_type":"单涨停回撤",
-        },
-        ]
-    response_json['data'] = eg_data
+    monitor_type = request_param["type"]
+    target_date = get_last_monitor_date(request_param["target_date"])
+    type_map = {"monitor":'',"retracement":'remen_retra',"single_limit":'single_limit_retra'}
+    sql = "select stock_id from monitor where trade_date = '{}' and monitor_type like '{}%'".format(target_date,type_map[monitor_type])
+    id_tuple = pub_uti_a.select_from_db(sql) #((id,),())
+    return_data = []
+    hash_name = "algo_monitor"
+    for id_tup in id_tuple:
+        id = id_tup[0]
+        algo_single = r.hget(hash_name,id)
+        print('redis_res',algo_single)
+        if algo_single != None:
+            return_data.append(json.loads(r.hget(hash_name,id)))
+
+    # eg_data = [
+    #     {
+    #         "id":"003853",
+    #         "name":"洪都航空",
+    #         "grade":105.1,
+    #         "price":39.5,
+    #         "increase":9.0,
+    #         "bk":"航空航天",
+    #         "bk_increase":3.25,
+    #         "bk_sort":2,
+    #         "in_sort":5,
+    #         "concept":"大飞机",
+    #         "concept_increase":5,
+    #         "monitor_type":"热门回撤",
+    #     },
+    #     {
+    #         "id":"002963",
+    #         "name":"比亚迪",
+    #         "grade":95.1,
+    #         "price":239.5,
+    #         "increase":4.0,
+    #         "bk":"汽车整车",
+    #         "bk_increase":2.15,
+    #         "bk_sort":4,
+    #         "in_sort":9,
+    #         "concept":"锂电池",
+    #         "concept_increase":1,
+    #         "monitor_type":"单涨停回撤",
+    #     },
+    #     ]
+
+    response_json['data'] = return_data
     return response_json
 
 # 辅助函数
-
 def get_last_monitor_date(traget_date):
     if traget_date != 'None':
         return traget_date

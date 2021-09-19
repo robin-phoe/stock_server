@@ -34,34 +34,33 @@ class bk_buffer:
         #       " LEFT JOIN (select distinct bk_name,bk_code from bankuai_day_data " \
         #       " where trade_date = (select max(trade_date) as trade_date from bankuai_day_data)) B " \
         #       " ON I.bk_name = B.bk_name "
-        sql = "select stock_id,bk_name,bk_code from stock_informations"
+        sql = "select stock_id,bk_name,bk_code from stock_informations where bk_code is not null "
         self.df = pub_uti_a.creat_df(sql)
         self.bk_set = set(self.df['bk_code'].tolist())
         for bk_code in self.bk_set:
             single_df = self.df[self.df.bk_code == bk_code]
-            self.bk_dict['bk_code'] = bk(single_df)
+            self.bk_obj_buffer[bk_code] = bk(single_df)
     def refresh_market(self,stock_market):
         self.bk_new_market = r.hgetall("bk_single_market")
         self.sort_bk()
         self.refresh_bk_instance(stock_market)
     def sort_bk(self):
         for bk_code in self.bk_set:
-            self.bk_increase[bk_code] = json.loads(self.bk_new_market[bk_code]).increase
+            self.bk_increase[bk_code] = json.loads(self.bk_new_market[bk_code])['increase']
         mem_list = sorted(self.bk_increase.items(), key=lambda d: d[1], reverse=True)  # 倒序
-        for i in range(1,len(mem_list)):
-            self.bk_rank[mem_list[i][0]] = i
+        for i in range(len(mem_list)):
+            self.bk_rank[mem_list[i][0]] = i+1
     def refresh_bk_instance(self,stock_market):
+        # print('err:', self.bk_obj_buffer,self.bk_increase,self.bk_rank )
         for bk_code in self.bk_set:
             self.bk_obj_buffer[bk_code].real_time_refresh(stock_market,self.bk_increase[bk_code],self.bk_rank[bk_code])
-    def set_bk_instance(self,bk_name,instance):
-        self.bk_dict[bk_name] = instance
     def get_bk_instance(self,bk_name):
-        if bk_name not in self.bk_dict:
+        if bk_name not in self.bk_obj_buffer:
             return False
         else:
-            return self.bk_dict[bk_name]
+            return self.bk_obj_buffer[bk_name]
     def get_buffer_all_key(self):
-        return self.bk_dict.keys()
+        return self.bk_obj_buffer.keys()
 class bk:
     def __init__(self,single_df):
         self.df = single_df
@@ -74,8 +73,9 @@ class bk:
         self.member_rank = {}  # 板块内成员排序
         self.mem_count = 0
         self.bk_rank = None
+        self.init_bk_info()
     def init_bk_info(self):
-        for index,raw in self.df:
+        for index,raw in self.df.iterrows():
             self.name = raw['bk_name']
             self.id = raw['bk_code']
             self.members.append(raw['stock_id'])
@@ -84,13 +84,16 @@ class bk:
         self.increase = bk_increase
         self.bk_rank = bk_rank
         for id in self.members:
-            self.member_real_info[id] = json.loads(stock_market[id]).increase
+            if id not in stock_market:
+                continue
+            self.member_real_info[id] = json.loads(stock_market[id])['increase']
         self.__sort_member()
     def __sort_member(self):
         mem_list = sorted(self.member_real_info.items(), key=lambda d: d[1], reverse=True) #倒序
-        for i in range(1,len(mem_list)):
-            self.member_rank[mem_list[i][0]] = "{}/{}".format(str(i),self.mem_count)
+        for i in range(0,len(mem_list)):
+            self.member_rank[mem_list[i][0]] = "{}/{}".format(str(i+1),self.mem_count)
     def get_rank_in_bk(self,stock_id):
+        # print("member_rank",self.members,self.member_rank)
         return self.member_rank[stock_id]
     def get_bk_info(self):
         return (self.name,self.id,self.member,self.increase,self.amount)
@@ -113,8 +116,19 @@ class stock:
         self.bk_sort =None
         self.in_sort =None
         self.concept_list=[]
-        self.init_info()
-    def init_info(self):
+
+    def refresh_data(self,market,bk_obj_buffer):
+        bk = bk_obj_buffer[self.bk_code]
+        single_market = json.loads(market)
+        self.price = single_market['price']
+        self.increase = single_market['increase']
+        self.grade = self.increase
+        self.bk_increase = bk.increase
+        self.bk_sort = bk.bk_rank
+        self.in_sort = bk.get_rank_in_bk(self.stock_id)
+        self.concept_list = [self.bk_name] #临时
+        self.hot_concept = bk.name  #临时
+        self.hot_concept_increase = bk.increase  #临时
         self.return_data = {
             "id":self.stock_id,
             "name":self.stock_name,
@@ -130,28 +144,18 @@ class stock:
             "hot_concept_increase":self.hot_concept_increase,
             "monitor_type":self.monitor_type,
             }
-    def refresh_data(self,market,bk_buffer):
-        bk = bk_buffer[self.bk_code]
-        single_market = json.loads(market)
-        self.price = single_market['price']
-        self.increase = single_market['increase']
-        self.bk_increase = bk.increase
-        self.bk_sort = bk.bk_rank
-        self.in_sort = bk.get_rank_in_bk(self.stock_id)
-        self.concept_list = [self.bk_name] #临时
-        self.hot_concept = bk.name  #临时
-        self.hot_concept_increase = bk.increase  #临时
 
 class stock_buffer:
     def __init__(self):
         self.stock_dict = {}  # {stock_id:instance}
         self.monitor_df = None
-        self.new_market_name = "new_market"
-        self.all_market_name = "all_market"
+        self.new_market_name = "single_market"
+        self.all_market_name = "day_market"
         self.new_market = None
         self.stock_obj_buffer = {}
         self.algo_monitor_name = "algo_monitor"
         self.monitor_stockid_buffer = []
+        self.algo_monitor_data = {}
     def init_monitor_buffer(self,set_date = None):
         if set_date == None:
             sql = "select date_format(max(trade_date) ,'%Y-%m-%d') as trade_date from monitor"
@@ -161,7 +165,8 @@ class stock_buffer:
         print('监控日期：',monitor_date)
         sql = "select M.monitor,I.stock_id,I.stock_name,M.grade,M.monitor_type,I.bk_name,I.bk_code from stock_informations I " \
               " INNER JOIN (select * from monitor  where trade_date = '{}') M" \
-              " ON M.stock_id = I.stock_id " .format(monitor_date)
+              " ON M.stock_id = I.stock_id " \
+              " where I.bk_code is not null " .format(monitor_date) #where I.bk_code is not null 数据不一致，暂时
         self.monitor_df = pub_uti_a.creat_df(sql)
         print('监控数量：{}'.format(len(self.monitor_df)))
         # 待加入：删除含空值行
@@ -169,29 +174,33 @@ class stock_buffer:
         # self.monitor_df.reset_index('stock_id',inplace=True)
         self.init_stocks()
     def init_stocks(self):
-        for index,raw in self.monitor_df:
+        for index,raw in self.monitor_df.iterrows():
             self.stock_obj_buffer[raw['stock_id']] = stock(raw)
     def get_redis_market(self):
         self.new_market = r.hgetall(self.new_market_name)
-    def save_to_redis(self):
-        r.hset(self.algo_monitor_name,json.dumps(self.algo_monitor_data, indent=2, ensure_ascii=False))
     def refresh_stocks(self,bk_buffer):
+        # print("new_market",self.new_market)
         for id in self.monitor_stockid_buffer:
             self.stock_obj_buffer[id].refresh_data(self.new_market[id],bk_buffer)
             stock_message = self.stock_obj_buffer[id].return_data
             r.hset(self.algo_monitor_name,id,json.dumps(stock_message, indent=2, ensure_ascii=False))
-            self.save_to_redis()
+        print('algo 已存入 redis。')
 
-def run1():
+
+def run():
     s_buffer = stock_buffer()
-    s_buffer.init_stock_buffer()
+    s_buffer.init_monitor_buffer()
     b_buffer = bk_buffer()
     b_buffer.init_bk_buffer()
 
+    start_t_com = datetime.datetime.now()
     s_buffer.get_redis_market()
     b_buffer.refresh_market(s_buffer.new_market)
-    s_buffer.refresh_stocks(b_buffer)
+    s_buffer.refresh_stocks(b_buffer.bk_obj_buffer)
+    print('计算耗时：', datetime.datetime.now() - start_t_com)
 
 
 if __name__ == '__main__':
-    pass
+    start_t = datetime.datetime.now()
+    run()
+    print('耗时：',datetime.datetime.now() - start_t)
