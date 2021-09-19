@@ -23,6 +23,7 @@ def stock_k_line(request):
 
 #分时
 def stock_time_line(request):
+    response_json = util.time_line(request)
     return JsonResponse(response_json)
 
 #algo_monitor
