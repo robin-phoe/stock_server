@@ -245,37 +245,34 @@ pz单页全部显示，废弃多进程
 #     # print("All subprocesses done.")
 if __name__ == "__main__":
     # run()
-    main()
+    # main()
     # save_to_mysql('2021-09-01')
 
-    # i=0
-    # end_trade_flush= False
-    # start_trade_flush = True
-    # while True:
-    #     time_now = datetime.datetime.now().strftime("%H:%M:%S")
-    #
-    #     if time_now >= "09:15:00" and time_now <= "15:01:00" :
-    #         # 开盘清理redis
-    #         if start_trade_flush ==True:
-    #             r.flushdb()
-    #             print("已清空redis")
-    #             start_trade_flush = False
-    #             end_trade_flush = True
-    #         time1 = datetime.datetime.now()
-    #         run()
-    #         time2 = datetime.datetime.now()
-    #         time_delta = time2 - time1
-    #         print("时间:",i,  time2.strftime("%H:%M:%S,%f"))
-    #         print("时间差:",time_delta)
-    #         i+=1
-    #         time.sleep(50)
-    #     #收盘redis持久化 & 清理redis
-    #     elif end_trade_flush == True:
-    #         save_to_mysql()
-    #         time.sleep(300)
-    #         r.flushdb()
-    #         print("已清空redis")
-    #         end_trade_flush = False
-    #         start_trade_flush = True
-    #     time.sleep(1)
+    i=0
+    end_trade_flush= False
+    start_trade_flush = True
+    while True:
+        time_now = datetime.datetime.now().strftime("%H:%M:%S")
+        weekday = datetime.datetime.now().weekday()
+        if weekday < 5 and  time_now >= "09:15:00" and time_now <= "15:01:00" :
+            # 开盘清理redis
+            if start_trade_flush ==True:
+                r.flushdb()
+                print("已清空redis")
+                start_trade_flush = False
+                end_trade_flush = True
+            time1 = datetime.datetime.now()
+            main()
+            time2 = datetime.datetime.now()
+            time_delta = time2 - time1
+            print("时间:",i,  time2.strftime("%H:%M:%S,%f"))
+            print("时间差:",time_delta)
+            i+=1
+            time.sleep(50)
+        #收盘redis持久化 & 清理redis
+        elif end_trade_flush == True:
+            save_to_mysql()
+            end_trade_flush = False
+            start_trade_flush = True
+        time.sleep(1)
 
