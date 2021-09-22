@@ -269,7 +269,7 @@ if __name__ == "__main__":
             print("时间差:",time_delta)
             i+=1
             time.sleep(50)
-        #收盘redis持久化 & 清理redis
+        #收盘redis持久化
         elif end_trade_flush == True:
             save_to_mysql()
             end_trade_flush = False
