@@ -26,6 +26,16 @@ def stock_time_line(request):
     response_json = util.time_line(request)
     return JsonResponse(response_json)
 
+#板块k_line
+def bk_k_line(request):
+    response_json = util.get_bk_kline(request)
+    return JsonResponse(response_json)
+
+#板块分时
+def bk_time_line(request):
+    response_json = util.bk_time_line(request)
+    return JsonResponse(response_json)
+
 #algo_monitor
 def algo_monitor(request):
     response_json = util.get_algo(request)
