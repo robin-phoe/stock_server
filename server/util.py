@@ -180,7 +180,7 @@ def get_bk_kline(request):
     end_date = request_param["end_date"]
     #查询单支股票
     if request_param["type"] == 'single':
-        where_sql = " where bk_id = '{0}' and trade_date >= '{1}' and trade_date <= '{2}'" \
+        where_sql = " where bk_code = '{0}' and trade_date >= '{1}' and trade_date <= '{2}'" \
                     "".format(request_param["bk_id"], start_date, end_date)
     #查询所有股票
     elif request_param["type"] == 'all':
@@ -194,7 +194,7 @@ def get_bk_kline(request):
     sql = filed_sql + where_sql
     print('sql:',sql)
     df = pub_uti_a.creat_df(sql)
-    df = df[["bk_id","trade_date","open_price","close_price","low_price","high_price","turnover_rate","a","b","c","d"]]
+    df = df[["bk_code","trade_date","open_price","close_price","low_price","high_price","turnover_rate","a","b","c","d"]]
     # 行转换为列表
     rows_list = df.values.tolist()
     kline_json = {}
