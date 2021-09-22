@@ -172,7 +172,7 @@ def get_bk_kline(request):
         response_json = {"code": 502, "message": "请求方法错误", "data": ""}
         return response_json
     # 查询字段sql
-    filed_sql = 'select bk_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,' \
+    filed_sql = 'select bk_code,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,' \
                 'low_price,high_price,turnover_rate,0 as a,0 as b,0 as c,0 as d  ' \
                 ' from bankuai_day_data '
 
