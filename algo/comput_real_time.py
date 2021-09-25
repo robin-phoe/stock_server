@@ -3,10 +3,8 @@ import pymysql
 import logging
 import time
 import datetime
-from multiprocessing import Pool
 import pandas as pd
 import numpy as np
-from matplotlib import ticker
 import re
 import pub_uti_a
 import json

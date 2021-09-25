@@ -323,4 +323,5 @@ def get_last_monitor_date(traget_date):
         return traget_date
     sql = "select max(trade_date) from monitor"
     last_date = pub_uti_a.select_from_db(sql)[0][0]
+    print("last_date:",last_date)
     return last_date
