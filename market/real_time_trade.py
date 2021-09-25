@@ -16,6 +16,7 @@ logging.basicConfig(level=logging.INFO,filename="../log/real_trade_data.log",fil
 
 count=0
 r = redis.StrictRedis(host="localhost", port=6379, db=0, decode_responses=True)
+r.pubsub()
 """
 获取单个页面股票数据
 {name:F14,最新价:F2,涨跌幅:F3,成交量:F5,ID:F12,成交额:F6,振幅:F7,最高:F15,最低:F16,今开:F17,昨收:F18,量比:F10,换手:F8,市盈(动):F9,市净率:F23}
@@ -112,6 +113,7 @@ def time_trade_to_redis(Data_json):
         all_market_json[timestamp] = new_market
         r.hset(single_market, id,json.dumps(new_market, indent=2, ensure_ascii=False))
         r.hset(day_market, id, json.dumps(all_market_json, indent=2, ensure_ascii=False))
+        r.publish('trigger_flag', "true")
     return 1
 """
 获取日内板块信息

@@ -214,6 +214,8 @@ def run():
 
 
 if __name__ == '__main__':
-    start_t = datetime.datetime.now()
-    run()
-    print('耗时：',datetime.datetime.now() - start_t)
+    ps = r.pubsub()
+    for item in ps.listen():
+        start_t = datetime.datetime.now()
+        run()
+        print('耗时：',datetime.datetime.now() - start_t)
