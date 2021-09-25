@@ -119,7 +119,7 @@ class stock:
     def refresh_data(self,market,bk_obj_buffer):
         bk = bk_obj_buffer[self.bk_code]
         single_market = json.loads(market)
-        self.timestamp = market['timestamp']
+        self.timestamp = single_market['timestamp']
         self.price = single_market['price']
         self.increase = single_market['increase']
         self.grade = self.increase
@@ -180,13 +180,13 @@ class stock_buffer:
             self.stock_obj_buffer[raw['stock_id']] = stock(raw)
     def get_redis_market(self):
         self.new_market = r.hgetall(self.new_market_name)
-        self.timestamp = self.new_market['timestamp']
     def refresh_stocks(self,bk_buffer):
         # print("new_market",self.new_market)
         for id in self.monitor_stockid_buffer:
             self.stock_obj_buffer[id].refresh_data(self.new_market[id],bk_buffer)
             #存储algo
             stock_message = self.stock_obj_buffer[id].return_data
+            self.timestamp = self.stock_obj_buffer[id].timestamp
             r.hset(self.algo_monitor_name,id,json.dumps(stock_message, indent=2, ensure_ascii=False))
             #储存algo全量
             if (r.hexists(name=self.all_algo_monitor_name, key=id)):
