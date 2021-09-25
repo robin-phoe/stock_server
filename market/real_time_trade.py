@@ -105,12 +105,11 @@ def time_trade_to_redis(Data_json):
                           "volume_rate": volume_rate, "turnover": turnover, "volume_money": volume_money}
             all_market_str = r.hget(day_market,id)
             all_market_json = json.loads(all_market_str)
-            all_market_json[timestamp] = new_market
         else:
             new_market = {"timestamp":timestamp,"id": id, "name": name, "price": price, "increase": increase, "volume": volume,
                           "volume_rate": volume_rate, "turnover": turnover, "volume_money": volume_money}
-            all_market_json = {timestamp:new_market}
-
+            all_market_json = {}
+        all_market_json[timestamp] = new_market
         r.hset(single_market, id,json.dumps(new_market, indent=2, ensure_ascii=False))
         r.hset(day_market, id, json.dumps(all_market_json, indent=2, ensure_ascii=False))
     return 1

@@ -104,6 +104,7 @@ class stock:
         self.bk_name = df_raw['bk_name']
         self.bk_code = df_raw['bk_code']
         self.grade = None
+        self.timestamp = None
         self.base_grade = df_raw['grade']
         self.monitor_type = df_raw['monitor_type']
         self.in_bk_rank = None
@@ -120,6 +121,7 @@ class stock:
     def refresh_data(self,market,bk_obj_buffer):
         bk = bk_obj_buffer[self.bk_code]
         single_market = json.loads(market)
+        self.timestamp = market['timestamp']
         self.price = single_market['price']
         self.increase = single_market['increase']
         self.grade = self.increase
@@ -131,6 +133,7 @@ class stock:
         self.hot_concept_increase = bk.increase  #临时
         self.return_data = {
             "id":self.stock_id,
+            "timestamp":self.timestamp,
             "name":self.stock_name,
             "grade":self.grade,
             "price":self.price,
@@ -144,7 +147,6 @@ class stock:
             "hot_concept_increase":self.hot_concept_increase,
             "monitor_type":self.monitor_type,
             }
-
 class stock_buffer:
     def __init__(self):
         self.stock_dict = {}  # {stock_id:instance}
@@ -152,8 +154,10 @@ class stock_buffer:
         self.new_market_name = "single_market"
         self.all_market_name = "day_market"
         self.new_market = None
+        self.timestamp = None
         self.stock_obj_buffer = {}
         self.algo_monitor_name = "algo_monitor"
+        self.all_algo_monitor_name = "all_algo_monitor"
         self.monitor_stockid_buffer = []
         self.algo_monitor_data = {}
     def init_monitor_buffer(self,set_date = None):
@@ -178,12 +182,23 @@ class stock_buffer:
             self.stock_obj_buffer[raw['stock_id']] = stock(raw)
     def get_redis_market(self):
         self.new_market = r.hgetall(self.new_market_name)
+        self.timestamp = self.new_market['timestamp']
     def refresh_stocks(self,bk_buffer):
         # print("new_market",self.new_market)
         for id in self.monitor_stockid_buffer:
             self.stock_obj_buffer[id].refresh_data(self.new_market[id],bk_buffer)
+            #存储algo
             stock_message = self.stock_obj_buffer[id].return_data
             r.hset(self.algo_monitor_name,id,json.dumps(stock_message, indent=2, ensure_ascii=False))
+            #储存algo全量
+            if (r.hexists(name=self.all_algo_monitor_name, key=id)):
+                all_algo_message = json.loads(r.hget(self.all_algo_monitor_name, id))
+            else:
+                all_algo_message = {}
+            all_algo_message[self.timestamp] = stock_message
+            r.hset(self.all_algo_monitor_name, id, json.dumps(self.all_algo_monitor_name,
+                                                                  indent=2, ensure_ascii=False))
+
         print('algo 已存入 redis。')
 
 

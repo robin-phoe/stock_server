@@ -290,6 +290,33 @@ def get_algo(request):
 
     response_json['data'] = return_data
     return response_json
+
+def grade_all_day(request):
+    request_param = json.loads(request.body)
+    response_json = {"code": 200, "message": "请求成功", "data": ""}
+    if request.method != 'POST':
+        response_json = {"code": 502, "message": "请求方法错误", "data": ""}
+        return response_json
+    monitor_type = request_param["type"]
+    target_date = request_param["target_date"]
+    return_data = []
+    if target_date == None:
+        all_algo = r.hgetall("all_algo_monitor")
+    else:
+        #db查询
+        pass
+    type_map = {"monitor": '', "retracement": 'remen_retra', "single_limit": 'single_limit_retra'}
+    target_date = get_last_monitor_date(request_param["target_date"])
+    sql = "select stock_id from monitor where trade_date = '{}' and monitor_type like '{}%'".format(target_date,type_map[monitor_type])
+    id_tuple = pub_uti_a.select_from_db(sql) #((id,),())
+    for id_tup in id_tuple:
+        id = id_tup[0]
+        algo_dict = json.loads(all_algo[id])
+        for time in algo_dict:
+            return_data[id][time] = algo_dict[time]['grade']
+    response_json['data'] = return_data
+    return response_json
+
 # 辅助函数
 def get_last_monitor_date(traget_date):
     if traget_date != 'None':

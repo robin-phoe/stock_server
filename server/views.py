@@ -40,3 +40,8 @@ def bk_time_line(request):
 def algo_monitor(request):
     response_json = util.get_algo(request)
     return JsonResponse(response_json)
+
+#取全日algo 分数
+def grade_all_day(request):
+    response_json = util.get_grade_all_day(request)
+    return JsonResponse(response_json)

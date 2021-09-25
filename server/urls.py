@@ -13,4 +13,5 @@ urlpatterns = [
     path('bk_k_line', views.bk_k_line),
     path('bk_time_line', views.bk_time_line),
     path('monitor/algo_monitor', views.algo_monitor),
+    path('monitor/grade_all_day', views.grade_all_day),
 ]
