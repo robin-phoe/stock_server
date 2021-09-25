@@ -194,7 +194,7 @@ class stock_buffer:
             else:
                 all_algo_message = {}
             all_algo_message[self.timestamp] = stock_message
-            r.hset(self.all_algo_monitor_name, id, json.dumps(self.all_algo_monitor_name,
+            r.hset(self.all_algo_monitor_name, id, json.dumps(all_algo_message,
                                                                   indent=2, ensure_ascii=False))
 
         print('algo 已存入 redis。')
