@@ -215,6 +215,7 @@ def run():
 
 if __name__ == '__main__':
     ps = r.pubsub()
+    ps.subscribe(['trigger_flag'])
     for item in ps.listen():
         start_t = datetime.datetime.now()
         run()
