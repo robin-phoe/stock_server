@@ -291,7 +291,7 @@ def get_algo(request):
     response_json['data'] = return_data
     return response_json
 
-def grade_all_day(request):
+def get_grade_all_day(request):
     request_param = json.loads(request.body)
     response_json = {"code": 200, "message": "请求成功", "data": ""}
     if request.method != 'POST':
@@ -299,8 +299,8 @@ def grade_all_day(request):
         return response_json
     monitor_type = request_param["type"]
     target_date = request_param["target_date"]
-    return_data = []
-    if target_date == None:
+    return_data = {}
+    if target_date == 'None':
         all_algo = r.hgetall("all_algo_monitor")
     else:
         #db查询
@@ -311,9 +311,15 @@ def grade_all_day(request):
     id_tuple = pub_uti_a.select_from_db(sql) #((id,),())
     for id_tup in id_tuple:
         id = id_tup[0]
+        if id not in all_algo:
+            return_data[id] = {}
+            continue
         algo_dict = json.loads(all_algo[id])
+        single_dic = {}
         for time in algo_dict:
-            return_data[id][time] = algo_dict[time]['grade']
+            print('algo_dict:',algo_dict)
+            single_dic[time] = algo_dict[time]['grade']
+        return_data[id]=single_dic
     response_json['data'] = return_data
     return response_json
 
