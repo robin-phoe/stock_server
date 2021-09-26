@@ -113,7 +113,7 @@ def time_trade_to_redis(Data_json):
         all_market_json[timestamp] = new_market
         r.hset(single_market, id,json.dumps(new_market, indent=2, ensure_ascii=False))
         r.hset(day_market, id, json.dumps(all_market_json, indent=2, ensure_ascii=False))
-        r.publish('trigger_flag', "true")
+    r.publish('trigger_flag', "true")
     return 1
 """
 获取日内板块信息
@@ -247,7 +247,7 @@ pz单页全部显示，废弃多进程
 if __name__ == "__main__":
     # run()
     # main()
-    # save_to_mysql('2021-09-01')
+    # save_to_mysql()
 
     i=0
     end_trade_flush= False

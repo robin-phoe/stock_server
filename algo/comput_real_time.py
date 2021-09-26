@@ -101,7 +101,7 @@ class stock:
         self.stock_id = df_raw['stock_id']
         self.bk_name = df_raw['bk_name']
         self.bk_code = df_raw['bk_code']
-        self.grade = None
+        self.grade = 0
         self.timestamp = None
         self.base_grade = df_raw['grade']
         self.monitor_type = df_raw['monitor_type']
@@ -152,6 +152,7 @@ class stock:
     inc超过理想区域后，其他分数总和越高，inc罚分越少，反之越多，以筛除虚拉回落，强势但高inc突破100分。
     """
     def algo_com_grade(self):
+        self.grade = 0
         #基础日K分数
         base_grade_power = 0.8
         base_grade = 0
@@ -173,7 +174,7 @@ class stock:
             inc_grade = 100
         else:
             pass
-        self.grade += inc_grade * 0.7
+        self.grade += inc_grade * increase_power
         #临时
         if self.increase >= 9.75:
             self.grade = 150
