@@ -254,8 +254,9 @@ def get_algo(request):
     hash_name = "algo_monitor"
     for id_tup in id_tuple:
         id = id_tup[0]
-        algo_single = json.loads(r.hget(hash_name,id))
+        algo_single = r.hget(hash_name,id)
         if algo_single != None:
+            algo_single = json.loads(algo_single)
             sort_dic[id] = algo_single['grade']
             content_dic[id] = algo_single
     t,keys,v = sort_dict(sort_dic)
