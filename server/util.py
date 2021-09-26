@@ -257,12 +257,15 @@ def get_algo(request):
         algo_single = r.hget(hash_name,id)
         if algo_single != None:
             algo_single = json.loads(algo_single)
-            sort_dic[id] = round(algo_single['grade'],2)
+            sort_dic[id] = algo_single['grade']
             content_dic[id] = algo_single
     t,keys,v = sort_dict(sort_dic)
     print('tuple:',t)
     for id in keys:
-        return_data.append(content_dic[id])
+        single_content = content_dic[id]
+        #转字符串，保留两位小数
+        single_content['grade'] ='%.2f' % single_content['grade']
+        return_data.append()
 
     response_json['data'] = return_data
     return response_json
