@@ -122,13 +122,14 @@ class stock:
         self.timestamp = single_market['timestamp']
         self.price = single_market['price']
         self.increase = single_market['increase']
-        self.grade = self.increase
         self.bk_increase = bk.increase
         self.bk_sort = bk.bk_rank
         self.in_sort = bk.get_rank_in_bk(self.stock_id)
         self.concept_list = [self.bk_name] #临时
         self.hot_concept = bk.name  #临时
         self.hot_concept_increase = bk.increase  #临时
+        #计算grade
+        self.algo_com_grade()
         self.return_data = {
             "id":self.stock_id,
             "timestamp":self.timestamp,
@@ -145,6 +146,39 @@ class stock:
             "hot_concept_increase":self.hot_concept_increase,
             "monitor_type":self.monitor_type,
             }
+    """
+    程序核心。最理想100分，每项满分时inc在2.5-4
+    每项各自100分，乘权重后汇总100分。
+    inc超过理想区域后，其他分数总和越高，inc罚分越少，反之越多，以筛除虚拉回落，强势但高inc突破100分。
+    """
+    def algo_com_grade(self):
+        #基础日K分数
+        base_grade_power = 0.8
+        base_grade = 0
+        if self.base_grade >= 20000:
+            base_grade = 100
+        elif self.base_grade >=10000:
+            base_grade = (self.base_grade - 10000)/100
+        self.grade += base_grade * base_grade_power
+        #板块分数
+        #大盘分数
+        # 分时涨幅分数（分数K线的一部分）
+        increase_power = 0.7
+        inc_grade = 0
+        if self.increase <= 0:
+            inc_grade = 0
+        elif 0 < self.increase < 2.5:
+            inc_grade = 100 * self.increase/2.5
+        elif 2.5 <= self.increase < 3.5:
+            inc_grade = 100
+        else:
+            pass
+        self.grade += inc_grade * 0.7
+        #临时
+        if self.increase >= 9.75:
+            self.grade = 150
+
+
 class stock_buffer:
     def __init__(self):
         self.stock_dict = {}  # {stock_id:instance}
