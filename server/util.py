@@ -260,6 +260,7 @@ def get_algo(request):
             sort_dic[id] = algo_single['grade']
             content_dic[id] = algo_single
     t,keys,v = sort_dict(sort_dic)
+    print('tuple:',t)
     for id in keys:
         return_data.append(content_dic[id])
 
@@ -307,7 +308,8 @@ def get_last_monitor_date(traget_date):
     print("last_date:",last_date)
     return last_date
 
-def sort_dict(d,reverse=False):
+def sort_dict(d,reverse=True):
+    #reverse=True 正序
     tup_list = sorted(d.items(), key=lambda item:item[1], reverse=reverse) #[(),()]
     key_list = []
     value_list = []
