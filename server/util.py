@@ -257,7 +257,7 @@ def get_algo(request):
         algo_single = r.hget(hash_name,id)
         if algo_single != None:
             algo_single = json.loads(algo_single)
-            sort_dic[id] = algo_single['grade']
+            sort_dic[id] = round(algo_single['grade'],2)
             content_dic[id] = algo_single
     t,keys,v = sort_dict(sort_dic)
     print('tuple:',t)
