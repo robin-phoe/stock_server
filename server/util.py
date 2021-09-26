@@ -38,7 +38,7 @@ def get_kline(request):
                 ' from stock_trade_data '
     start_date = request_param["start_date"]
     end_date = request_param["end_date"]
-    traget_date = get_last_monitor_date(request_param["traget_date"])
+    traget_date = get_last_monitor_date(request_param["target_date"])
     table_map = {"monitor":"monitor", "retracement":"remen_retracement", "single_limit":"limit_up_single"}
     #查询单支股票
     if request_param["type"] == 'single':
