@@ -100,20 +100,24 @@ def time_line(request):
         sql = "select stock_id from monitor where trade_date = '{}' and monitor_type like '{}%'".format(target_date,type_map[monitor_type])
         id_tuple = pub_uti_a.select_from_db(sql) #((id,),())
     return_data = {}
-    time_list = []
-    value_list = []
+
     hash_name = "day_market"
     for id_tup in id_tuple:
         id = id_tup[0]
+        time_list = []
+        value_list = []
         algo_single = r.hget(hash_name,id)
-        print('redis_res',algo_single)
+        # print('redis_res',algo_single)
         if algo_single != None:
             algo_single = (json.loads(r.hget(hash_name,id)))
+            # return_data[id] = algo_single
             for time in algo_single:
                 time_list.append(time)
-                value_list.append(algo_single[time]['grade'])
+                value_list.append(algo_single[time]['increase'])
         return_data[id] = {"x_axis": time_list, "data": value_list}
+
     response_json['data'] = return_data
+    print('respone:', return_data)
     return response_json
 
 """
