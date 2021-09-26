@@ -222,25 +222,10 @@ def main():
 def save_to_mysql(date = None):
     if date == None:
         date = datetime.datetime.now().strftime("%Y-%m-%d")
-    #股票分时数据持久化
     all_market_json = r.hgetall('day_market')
     sv = pub_uti_a.save()
     for id in all_market_json:
-        sql = "INSERT INTO miu_trade_data (stock_id,trade_date,data) values ('{0}','{1}','{2}')".format(id,date,all_market_json[id])
-        sv.add_sql(sql)
-    sv.commit()
-    #板块数据持久化
-    all_market_json = r.hgetall('bk_day_market')
-    sv = pub_uti_a.save()
-    for id in all_market_json:
-        sql = "INSERT INTO bk_miu_data (stock_id,trade_date,data) values ('{0}','{1}','{2}')".format(id,date,all_market_json[id])
-        sv.add_sql(sql)
-    sv.commit()
-    #algo监控数据持久化
-    all_market_json = r.hgetall('all_algo_monitor')
-    sv = pub_uti_a.save()
-    for id in all_market_json:
-        sql = "INSERT INTO algo_miu_data (stock_id,trade_date,data) values ('{0}','{1}','{2}')".format(id,date,all_market_json[id])
+        sql = "INSERT INTO miu_trade_date (stock_id,trade_date,data) values ('{0}','{1}','{2}')".format(id,date,all_market_json[id])
         sv.add_sql(sql)
     sv.commit()
 
@@ -262,7 +247,7 @@ pz单页全部显示，废弃多进程
 if __name__ == "__main__":
     # run()
     # main()
-    # save_to_mysql('2021-09-24')
+    # save_to_mysql()
 
     i=0
     end_trade_flush= False
