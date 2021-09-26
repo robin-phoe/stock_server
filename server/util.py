@@ -249,44 +249,18 @@ def get_algo(request):
     sql = "select stock_id from monitor where trade_date = '{}' and monitor_type like '{}%'".format(target_date,type_map[monitor_type])
     id_tuple = pub_uti_a.select_from_db(sql) #((id,),())
     return_data = []
+    sort_dic = {}
+    content_dic = {}
     hash_name = "algo_monitor"
     for id_tup in id_tuple:
         id = id_tup[0]
-        algo_single = r.hget(hash_name,id)
-        print('redis_res',algo_single)
+        algo_single = json.loads(r.hget(hash_name,id))
         if algo_single != None:
-            return_data.append(json.loads(r.hget(hash_name,id)))
-
-    # eg_data = [
-    #     {
-    #         "id":"003853",
-    #         "name":"洪都航空",
-    #         "grade":105.1,
-    #         "price":39.5,
-    #         "increase":9.0,
-    #         "bk":"航空航天",
-    #         "bk_increase":3.25,
-    #         "bk_sort":2,
-    #         "in_sort":5,
-    #         "concept":"大飞机",
-    #         "concept_increase":5,
-    #         "monitor_type":"热门回撤",
-    #     },
-    #     {
-    #         "id":"002963",
-    #         "name":"比亚迪",
-    #         "grade":95.1,
-    #         "price":239.5,
-    #         "increase":4.0,
-    #         "bk":"汽车整车",
-    #         "bk_increase":2.15,
-    #         "bk_sort":4,
-    #         "in_sort":9,
-    #         "concept":"锂电池",
-    #         "concept_increase":1,
-    #         "monitor_type":"单涨停回撤",
-    #     },
-    #     ]
+            sort_dic[id] = algo_single['grade']
+            content_dic[id] = algo_single
+    t,keys,v = sort_dict(sort_dic)
+    for id in keys:
+        return_data.append(content_dic[id])
 
     response_json['data'] = return_data
     return response_json
@@ -331,3 +305,13 @@ def get_last_monitor_date(traget_date):
     last_date = pub_uti_a.select_from_db(sql)[0][0]
     print("last_date:",last_date)
     return last_date
+
+def sort_dict(d,reverse=False):
+    tup_list = sorted(d.items(), key=lambda item:item[1], reverse=reverse) #[(),()]
+    key_list = []
+    value_list = []
+    for tup in tup_list:
+        key_list.append(tup[0])
+        value_list.append(tup[1])
+    return tup_list,key_list,value_list
+
