@@ -270,7 +270,7 @@ def get_algo(request):
         single_content = content_dic[id]
         #转字符串，保留两位小数
         single_content['grade'] ='%.2f' % single_content['grade']
-        return_data.append()
+        return_data.append(single_content)
 
     response_json['data'] = return_data
     return response_json
