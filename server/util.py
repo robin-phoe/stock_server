@@ -100,14 +100,19 @@ def time_line(request):
         sql = "select stock_id from monitor where trade_date = '{}' and monitor_type like '{}%'".format(target_date,type_map[monitor_type])
         id_tuple = pub_uti_a.select_from_db(sql) #((id,),())
     return_data = {}
+    time_list = []
+    value_list = []
     hash_name = "day_market"
     for id_tup in id_tuple:
         id = id_tup[0]
         algo_single = r.hget(hash_name,id)
         print('redis_res',algo_single)
         if algo_single != None:
-            return_data[id] = (json.loads(r.hget(hash_name,id)))
-
+            algo_single = (json.loads(r.hget(hash_name,id)))
+            for time in algo_single:
+                time_list.append(time)
+                value_list.append(algo_single[time]['grade'])
+        return_data[id] = {"x_axis": time_list, "data": value_list}
     response_json['data'] = return_data
     return response_json
 
@@ -295,10 +300,14 @@ def get_grade_all_day(request):
             continue
         algo_dict = json.loads(all_algo[id])
         single_dic = {}
+        time_list = []
+        value_list = []
         for time in algo_dict:
-            print('algo_dict:',algo_dict)
-            single_dic[time] = algo_dict[time]['grade']
-        return_data[id]=single_dic
+            # print('algo_dict:',algo_dict)
+            # single_dic[time] = algo_dict[time]['grade']
+            time_list.append(time)
+            value_list.append(algo_dict[time]['grade'])
+        return_data[id]= {"x_axis":time_list,"data":value_list}
     response_json['data'] = return_data
     return response_json
 
