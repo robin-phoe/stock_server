@@ -222,10 +222,25 @@ def main():
 def save_to_mysql(date = None):
     if date == None:
         date = datetime.datetime.now().strftime("%Y-%m-%d")
+    #存储股票分时数据
     all_market_json = r.hgetall('day_market')
     sv = pub_uti_a.save()
     for id in all_market_json:
         sql = "INSERT INTO miu_trade_date (stock_id,trade_date,data) values ('{0}','{1}','{2}')".format(id,date,all_market_json[id])
+        sv.add_sql(sql)
+    sv.commit()
+    #存储algo分时数据
+    all_market_json = r.hgetall('all_algo_monitor')
+    sv = pub_uti_a.save()
+    for id in all_market_json:
+        sql = "INSERT INTO algo_miu_data (stock_id,trade_date,data) values ('{0}','{1}','{2}')".format(id,date,all_market_json[id])
+        sv.add_sql(sql)
+    sv.commit()
+    #存储板块分时数据
+    all_market_json = r.hgetall('bk_day_market')
+    sv = pub_uti_a.save()
+    for id in all_market_json:
+        sql = "INSERT INTO bk_miu_data (bk_id,trade_date,data) values ('{0}','{1}','{2}')".format(id,date,all_market_json[id])
         sv.add_sql(sql)
     sv.commit()
 
