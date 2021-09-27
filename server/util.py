@@ -253,6 +253,7 @@ def get_algo(request):
         response_json = {"code": 502, "message": "请求方法错误", "data": ""}
         return response_json
     monitor_type = request_param["type"]
+    print('target_date:',request_param["target_date"])
     target_date = get_last_monitor_date(request_param["target_date"])
     type_map = {"monitor":'',"retracement":'remen_retra',"single_limit":'single_limit_retra'}
     sql = "select stock_id from monitor where trade_date = '{}' and monitor_type like '{}%'".format(target_date,type_map[monitor_type])
