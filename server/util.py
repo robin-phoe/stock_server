@@ -54,7 +54,7 @@ def get_kline(request):
         for id in id_tuple_res:
             id_list.append(id[0])
         id_tuple = tuple(id_list)
-        print('id_tuple:',id_tuple)
+        # print('id_tuple:',id_tuple)
         where_sql = " where stock_id in {0} and trade_date >= '{1}' and trade_date <= '{2}'" \
                     "".format(id_tuple, start_date, end_date)
     #查询所有股票
@@ -113,7 +113,7 @@ def get_kline_simple(request):
         for id in id_tuple_res:
             id_list.append(id[0])
         id_tuple = tuple(id_list)
-        print('id_tuple:',id_tuple)
+        # print('id_tuple:',id_tuple)
         where_sql = " where stock_id in {0} and trade_date >= '{1}' and trade_date <= '{2}'" \
                     "".format(id_tuple, start_date, end_date)
     #查询所有股票
@@ -177,7 +177,7 @@ def time_line(request):
         return_data[id] = {"x_axis": time_list, "data": value_list}
 
     response_json['data'] = return_data
-    print('respone:', return_data)
+    # print('respone:', return_data)
     return response_json
 
 """
@@ -330,7 +330,7 @@ def get_algo(request):
             sort_dic[id] = algo_single['grade']
             content_dic[id] = algo_single
     t,keys,v = sort_dict(sort_dic)
-    print('tuple:',t)
+    # print('tuple:',t)
     for id in keys:
         single_content = content_dic[id]
         #转字符串，保留两位小数
