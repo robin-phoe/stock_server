@@ -127,7 +127,7 @@ def get_kline_simple(request):
 
     sql = filed_sql + where_sql
     print('sql:',sql)
-    df = pub_uti_a.creat_df(sql)
+    df = pub_uti_a.creat_df(sql,ascending=True)
     df['point_type'] = df['point_type'].apply(lambda x: 'n' if x == '' else x)
     df = df[["stock_id","trade_date","open_price","close_price","low_price","high_price","turnover_rate","point_type","a","b","c"]]
     # 行转换为列表
