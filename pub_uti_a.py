@@ -67,6 +67,7 @@ class select_db:
         cd = con_db()
         self.db = cd.creat_db()
     def select_from_db(self,sql,method = 'fetchall'):
+        self.db.ping(reconnect=True)
         cursor = self.db.cursor()
         cursor.execute(sql)
         if method == 'fetchall':
