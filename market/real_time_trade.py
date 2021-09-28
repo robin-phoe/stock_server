@@ -226,7 +226,7 @@ def save_to_mysql(date = None):
     all_market_json = r.hgetall('day_market')
     sv = pub_uti_a.save()
     for id in all_market_json:
-        sql = "INSERT INTO miu_trade_date (stock_id,trade_date,data) values ('{0}','{1}','{2}')".format(id,date,all_market_json[id])
+        sql = "INSERT INTO miu_trade_data (stock_id,trade_date,data) values ('{0}','{1}','{2}')".format(id,date,all_market_json[id])
         sv.add_sql(sql)
     sv.commit()
     #存储algo分时数据
@@ -270,7 +270,7 @@ if __name__ == "__main__":
     while True:
         time_now = datetime.datetime.now().strftime("%H:%M:%S")
         weekday = datetime.datetime.now().weekday()
-        if weekday < 5 and  time_now >= "09:15:00" and time_now <= "15:01:00" :
+        if weekday < 5 and  time_now >= "09:20:00" and time_now <= "15:01:00" :
             #午盘休息暂停
             if  time_now > "11:31:00" and time_now <= "13:00:00" :
                 time.sleep(1)
@@ -288,7 +288,7 @@ if __name__ == "__main__":
             print("时间:",i,  time2.strftime("%H:%M:%S,%f"))
             print("时间差:",time_delta)
             i+=1
-            time.sleep(50)
+            time.sleep(40)
         #收盘redis持久化
         elif end_trade_flush == True:
             save_to_mysql()
