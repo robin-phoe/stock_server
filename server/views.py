@@ -18,9 +18,14 @@ from . import util
 #     queryset = RemenXiaoboxin.objects.all()
 #     serializer_class = stocksSerializer1
 
-#日k_line
+#股票 k_line
 def stock_k_line(request):
     response_json = util.get_kline(request)
+    return JsonResponse(response_json)
+
+#股票 k_line_simple
+def stock_k_line_simple(request):
+    response_json = util.get_kline_simple(request)
     return JsonResponse(response_json)
 
 #分时

@@ -8,7 +8,7 @@ r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 Request:
 {
     type:'monitor', #"all","single","monitor","retracement","single_limit"
-    traget_date:'' #监控模式下必填
+    target_date:'' #监控模式下必填
     start_date:'2021-02-01',
     end_date:'2021-09-08',
     stock_id:''
@@ -38,7 +38,7 @@ def get_kline(request):
                 ' from stock_trade_data '
     start_date = request_param["start_date"]
     end_date = request_param["end_date"]
-    traget_date = get_last_monitor_date(request_param["target_date"])
+    target_date = get_last_monitor_date(request_param["target_date"])
     table_map = {"monitor":"monitor", "retracement":"remen_retracement", "single_limit":"limit_up_single"}
     #查询单支股票
     if request_param["type"] == 'single':
@@ -48,7 +48,7 @@ def get_kline(request):
     #查询监控类股票
     elif request_param["type"] in table_map:
         sql = "select stock_id from {} where trade_date = '{}'" \
-              "".format(table_map[request_param["type"]],traget_date)
+              "".format(table_map[request_param["type"]],target_date)
         id_tuple_res = pub_uti_a.select_from_db(sql)
         id_list = []
         for id in id_tuple_res:
@@ -80,6 +80,66 @@ def get_kline(request):
             kline_json[id].append(row)
         else:
             kline_json[id] = [row]
+    # response_json['data'] = json.dumps(kline_json, indent=2, ensure_ascii=False)
+    response_json['data'] = kline_json
+
+    return response_json
+
+def get_kline_simple(request):
+    request_param = json.loads(request.body)
+    response_json = {"code": 200, "message": "请求成功", "data": ""}
+    if request.method != 'POST':
+        response_json = {"code": 502, "message": "请求方法错误", "data": ""}
+        return response_json
+    # 查询字段sql
+    filed_sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,' \
+                'low_price,high_price,turnover_rate,point_type,0 as a,0 as b,0 as c  ' \
+                ' from stock_trade_data '
+    target_date = get_last_monitor_date(request_param["target_date"])
+    end_date = target_date
+    start_date = get_start_date(target_date)
+    table_map = {"monitor":"monitor", "retracement":"remen_retracement", "single_limit":"limit_up_single"}
+    #查询单支股票
+    if request_param["type"] == 'single':
+        id_tuple = (request_param["stock_id"],request_param["stock_id"])
+        where_sql = " where stock_id in {0} and trade_date >= '{1}' and trade_date <= '{2}'" \
+                    "".format(id_tuple, start_date, end_date)
+    #查询监控类股票
+    elif request_param["type"] in table_map:
+        sql = "select stock_id from {} where trade_date = '{}'" \
+              "".format(table_map[request_param["type"]],target_date)
+        id_tuple_res = pub_uti_a.select_from_db(sql)
+        id_list = []
+        for id in id_tuple_res:
+            id_list.append(id[0])
+        id_tuple = tuple(id_list)
+        print('id_tuple:',id_tuple)
+        where_sql = " where stock_id in {0} and trade_date >= '{1}' and trade_date <= '{2}'" \
+                    "".format(id_tuple, start_date, end_date)
+    #查询所有股票
+    elif request_param["type"] == 'all':
+        where_sql = " where  trade_date >= '{0}' and trade_date <= '{1}'" \
+                    "".format(start_date, end_date)
+    else:
+        print('ERROR')
+        response_json = {"code": 502, "message": "type不符合", "data": ""}
+        return response_json
+
+    sql = filed_sql + where_sql
+    print('sql:',sql)
+    df = pub_uti_a.creat_df(sql)
+    df['point_type'] = df['point_type'].apply(lambda x: 'n' if x == '' else x)
+    df = df[["stock_id","trade_date","open_price","close_price","low_price","high_price","turnover_rate","point_type","a","b","c"]]
+    # 行转换为列表
+    rows_list = df.values.tolist()
+    kline_json = {}
+    for row in rows_list:
+        id = row[0]
+        val = [row[2],row[3],row[4],row[5]]
+        if id in kline_json:
+            kline_json[id].append(val)
+        else:
+            kline_json[id] = [val]
     # response_json['data'] = json.dumps(kline_json, indent=2, ensure_ascii=False)
     response_json['data'] = kline_json
 
@@ -125,7 +185,7 @@ def time_line(request):
 Request:
 {
     type:'monitor', #"all","single","monitor","retracement","single_limit"
-    traget_date:'' #监控模式下必填
+    target_date:'' #监控模式下必填
     start_date:'2021-02-01',
     end_date:'2021-09-08',
     stock_id:''
@@ -219,7 +279,7 @@ def bk_time_line(request):
 Request：
 {  
     "type:"monitor",  
-    "traget_date":"None" #有监控结果的最后一日  
+    "target_date":"None" #有监控结果的最后一日  
 }
 Response:
 {
@@ -317,9 +377,9 @@ def get_grade_all_day(request):
     return response_json
 
 # 辅助函数
-def get_last_monitor_date(traget_date):
-    if traget_date != 'None':
-        return traget_date
+def get_last_monitor_date(target_date):
+    if target_date != 'None':
+        return target_date
     sql = "select max(trade_date) from monitor"
     last_date = pub_uti_a.select_from_db(sql)[0][0]
     print("last_date:",last_date)
@@ -334,4 +394,12 @@ def sort_dict(d,reverse=True):
         key_list.append(tup[0])
         value_list.append(tup[1])
     return tup_list,key_list,value_list
+
+def get_start_date(target_date,long = 20):
+    sql = "SELECT date_format(T.trade_date ,'%Y-%m-%d') as trade_date FROM (SELECT distinct(trade_date) FROM stock_trade_data where trade_date<= '{1}') T " \
+          " order by trade_date desc limit {0},1".format(long,target_date)
+    print('start_date sql:',sql)
+    start_date = pub_uti_a.select_from_db(sql)[0][0]
+    print("start_date:", start_date)
+    return start_date
 

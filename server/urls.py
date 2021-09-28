@@ -9,6 +9,7 @@ router = DefaultRouter()
 urlpatterns = [
     path('', include(router.urls)),
     path('k_line', views.stock_k_line),
+    path('k_line_simple', views.stock_k_line_simple),
     path('time_line', views.stock_time_line),
     path('bk_k_line', views.bk_k_line),
     path('bk_time_line', views.bk_time_line),
