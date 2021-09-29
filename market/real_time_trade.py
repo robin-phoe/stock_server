@@ -281,6 +281,7 @@ if __name__ == "__main__":
                 print("已清空redis")
                 start_trade_flush = False
                 end_trade_flush = True
+            print(time_now)
             time1 = datetime.datetime.now()
             main()
             time2 = datetime.datetime.now()

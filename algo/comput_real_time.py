@@ -13,10 +13,8 @@ logging.basicConfig(level=logging.CRITICAL, filename='../log/monitor.log', filem
                     format='%(asctime)s-%(levelname)5s: %(message)s')
 r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 
-
-
-
-
+s_buffer = None
+b_buffer = None
 class bk_buffer:
     def __init__(self):
         self.bk_obj_buffer = {} #{bk_id:instance}
@@ -178,7 +176,6 @@ class stock:
         #临时
         if self.increase >= 9.75:
             self.grade = 150
-
 class stock_buffer:
     def __init__(self):
         self.stock_dict = {}  # {stock_id:instance}
@@ -234,14 +231,15 @@ class stock_buffer:
         print('algo 已存入 redis。')
 
 def run():
-    s_buffer = None
-    b_buffer = None
     def init():
+        global s_buffer, b_buffer
         s_buffer = stock_buffer()
         s_buffer.init_monitor_buffer()
         b_buffer = bk_buffer()
         b_buffer.init_bk_buffer()
+        print('初始化完成。')
     def refresh():
+        global s_buffer, b_buffer
         s_buffer.get_redis_market()
         b_buffer.refresh_market(s_buffer.new_market)
         s_buffer.refresh_stocks(b_buffer.bk_obj_buffer)
