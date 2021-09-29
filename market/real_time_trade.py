@@ -276,7 +276,7 @@ if __name__ == "__main__":
                 time.sleep(1)
                 continue
             # 开盘清理redis
-            if start_trade_flush ==True:
+            if start_trade_flush ==True and time_now <= "09:31:00":
                 r.flushdb()
                 print("已清空redis")
                 start_trade_flush = False
