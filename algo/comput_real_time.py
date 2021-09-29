@@ -134,7 +134,7 @@ class stock:
             "id":self.stock_id,
             "timestamp":self.timestamp,
             "name":self.stock_name,
-            "grade":self.grade,
+            "grade":self.increase,
             "price":self.price,
             "increase":self.increase,
             "bk":self.bk_name,
