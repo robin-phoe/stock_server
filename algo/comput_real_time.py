@@ -136,7 +136,7 @@ class stock:
             "name":self.stock_name,
             "grade":self.increase,
             "price":self.price,
-            "increase":self.increase,
+            "increase":self.increase * 15,
             "bk":self.bk_name,
             "bk_increase":self.bk_increase,
             "bk_sort":self.bk_sort,
