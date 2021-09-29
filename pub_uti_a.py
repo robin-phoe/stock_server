@@ -41,6 +41,7 @@ class creat_df_from_db:
         cd = con_db()
         self.db = cd.creat_db()
     def creat_df(self,sql,ascending=False):
+        self.db.ping(reconnect=True)
         cursor = self.db.cursor()  # 使用cursor()方法获取用于执行SQL语句的游标
         cursor.execute(sql)  # 执行SQL语句
         data = cursor.fetchall()
@@ -88,6 +89,7 @@ class commit_to_db_cla:
         cd = con_db()
         self.db = cd.creat_db()
     def commit_db(self,sql):
+        self.db.ping(reconnect=True)
         cursor = self.db.cursor()
         try:
             cursor.execute(sql)
