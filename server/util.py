@@ -130,12 +130,13 @@ def get_kline_simple(request):
     df = pub_uti_a.creat_df(sql,ascending=True)
     df['point_type'] = df['point_type'].apply(lambda x: 'n' if x == '' else x)
     df = df[["stock_id","trade_date","open_price","close_price","low_price","high_price","turnover_rate","point_type","a","b","c"]]
+    min_base_value = min(df["low_price"])
     # 行转换为列表
     rows_list = df.values.tolist()
     kline_json = {}
     for row in rows_list:
         id = row[0]
-        val = [row[2],row[3],row[4],row[5]]
+        val = [row[2] - min_base_value, row[3] - min_base_value , row[4]- min_base_value, row[5] - min_base_value]
         if id in kline_json:
             kline_json[id].append(val)
         else:
