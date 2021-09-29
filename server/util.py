@@ -164,6 +164,7 @@ def time_line(request):
     return_data = {}
 
     hash_name = "day_market"
+    fill_lenth = 480
     for id_tup in id_tuple:
         id = id_tup[0]
         time_list = []
@@ -176,6 +177,10 @@ def time_line(request):
             for time in algo_single:
                 time_list.append(time)
                 value_list.append(algo_single[time]['increase'])
+            delta_len = fill_lenth - len(time_list)
+            if delta_len > 0:
+                time_list.extend([''] * delta_len)
+                value_list.extend([''] * delta_len)
         return_data[id] = {"x_axis": time_list, "data": value_list}
 
     response_json['data'] = return_data
