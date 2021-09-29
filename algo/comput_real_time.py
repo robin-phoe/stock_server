@@ -179,7 +179,6 @@ class stock:
         if self.increase >= 9.75:
             self.grade = 150
 
-
 class stock_buffer:
     def __init__(self):
         self.stock_dict = {}  # {stock_id:instance}
@@ -234,24 +233,34 @@ class stock_buffer:
 
         print('algo 已存入 redis。')
 
-
 def run():
-    s_buffer = stock_buffer()
-    s_buffer.init_monitor_buffer()
-    b_buffer = bk_buffer()
-    b_buffer.init_bk_buffer()
-
-    start_t_com = datetime.datetime.now()
-    s_buffer.get_redis_market()
-    b_buffer.refresh_market(s_buffer.new_market)
-    s_buffer.refresh_stocks(b_buffer.bk_obj_buffer)
-    print('计算耗时：', datetime.datetime.now() - start_t_com)
-
-
-if __name__ == '__main__':
+    s_buffer = None
+    b_buffer = None
+    def init():
+        s_buffer = stock_buffer()
+        s_buffer.init_monitor_buffer()
+        b_buffer = bk_buffer()
+        b_buffer.init_bk_buffer()
+    def refresh():
+        s_buffer.get_redis_market()
+        b_buffer.refresh_market(s_buffer.new_market)
+        s_buffer.refresh_stocks(b_buffer.bk_obj_buffer)
+    init()
+    init_flag = True
     ps = r.pubsub()
     ps.subscribe(['trigger_flag'])
     for item in ps.listen():
+        time_now = datetime.datetime.now().strftime("%H:%M:%S")
+        if time_now >= "09:00:00" and time_now <= "10:00:00":
+            if init_flag:
+                init()
+                init_flag = False
+        else:
+            init_flag = True
         start_t = datetime.datetime.now()
-        run()
+        refresh()
         print('耗时：',datetime.datetime.now() - start_t)
+
+
+if __name__ == '__main__':
+    run()
