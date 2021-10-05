@@ -241,10 +241,10 @@ def hostory_com(date):
     all_algo_monitor = 'all_algo_monitor'
     algo_monitor = 'algo_monitor'
     def clean():
-        r.hdel(single_market)
-        r.hdel(bk_single_market)
-        r.hdel(all_algo_monitor)
-        r.hdel(algo_monitor)
+        r.delete(single_market)
+        r.delete(bk_single_market)
+        r.delete(all_algo_monitor)
+        r.delete(algo_monitor)
     def select_from_db(date):
         miu_trade_dic = {}
         bk_trade_dic = {}
