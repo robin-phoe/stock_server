@@ -160,6 +160,7 @@ def time_line(request):
     else:
         type_map = {"monitor":'',"retracement":'remen_retra',"single_limit":'single_limit_retra'}
         sql = "select stock_id from monitor where trade_date = '{}' and monitor_type like '{}%'".format(target_date,type_map[monitor_type])
+        print('sql',sql)
         id_tuple = pub_uti_a.select_from_db(sql) #((id,),())
     return_data = {}
 

@@ -176,6 +176,7 @@ class stock_buffer:
               " INNER JOIN (select * from monitor  where trade_date = '{}') M" \
               " ON M.stock_id = I.stock_id " \
               " where I.bk_code is not null " .format(monitor_date) #where I.bk_code is not null 数据不一致，暂时
+        print('sql:',sql)
         self.monitor_df = pub_uti_a.creat_df(sql)
         print('监控数量：{}'.format(len(self.monitor_df)))
         # 待加入：删除含空值行
@@ -248,16 +249,17 @@ def hostory_com(date):
     def select_from_db(date):
         miu_trade_dic = {}
         bk_trade_dic = {}
-        sql = "select * from miu_trade_data where trade_date = '{}'".format(date)
+        sql = "select stock_id,data from miu_trade_data where trade_date = '{}'".format(date)
         miu_trade_res = pub_uti_a.select_from_db(sql)
+        len_content = 0
         for stock in miu_trade_res:
             miu_trade_dic[stock[0]] = json.loads(stock[1])
-        sql = "select * from bk_miu_data where trade_date = '{}'".format(date)
+            len_content = len(miu_trade_dic[stock[0]])
+        sql = "select bk_id,data from bk_miu_data where trade_date = '{}'".format(date)
         bk_trade_df_res = pub_uti_a.select_from_db(sql)
-        for bk in miu_trade_res:
+        for bk in bk_trade_df_res:
             bk_trade_dic[bk[0]] = json.loads(bk[1])
-        print('字典长度：',len(miu_trade_dic),len(bk_trade_dic))
-        return miu_trade_dic,bk_trade_dic
+        return miu_trade_dic,bk_trade_dic,len_content
     def init(date):
         global s_buffer, b_buffer
         s_buffer = stock_buffer()
@@ -273,24 +275,23 @@ def hostory_com(date):
 
     clean()
     init(date)
-    miu_trade_dic, bk_trade_dic = select_from_db(date)
-    len_dict = len(miu_trade_dic)
-
-    for i in range(len_dict):
+    miu_trade_dic, bk_trade_dic,len_content = select_from_db(date)
+    print('len_content:',len_content)
+    for i in range(len_content):
         for stock in miu_trade_dic:
-            miu_keys_list = miu_trade_dic.keys()
             miu_content = miu_trade_dic[stock]
+            miu_keys_list = list(miu_content.keys())
             miu_new_market = miu_content[miu_keys_list[i]]
-            r.hset(single_market, id, json.dumps(miu_new_market, indent=2, ensure_ascii=False))
+            r.hset(single_market, stock, json.dumps(miu_new_market, indent=2, ensure_ascii=False))
         for bk in bk_trade_dic:
-            bk_keys_list = bk_trade_dic.keys()
             bk_content = bk_trade_dic[bk]
+            bk_keys_list = list(bk_content.keys())
             bk_new_market = bk_content[bk_keys_list[i]]
-            r.hset(bk_single_market, id, json.dumps(bk_new_market, indent=2, ensure_ascii=False))
+            r.hset(bk_single_market, bk, json.dumps(bk_new_market, indent=2, ensure_ascii=False))
         refresh()
 
 
 
 if __name__ == '__main__':
     # run()
-    hostory_com(date = '2021-09-30')
+    hostory_com(date = '2021-09-28')

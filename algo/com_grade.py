@@ -31,7 +31,7 @@
 '''
 基础日K分数转换
 '''
-def base_grade(base_grade):
+def base_grade_com(base_grade):
     grade = 0
     # 基础日K分数
     base_grade_power = 0.8
@@ -69,7 +69,7 @@ def inc_control(grade,inc):
     return grade
 def compute_algo_grade(base_grade,inc):
     grade = 0
-    grade += base_grade(base_grade)
+    grade += base_grade_com(base_grade)
     grade = inc_control(grade, inc)
     return grade
 if __name__ == '__main__':
