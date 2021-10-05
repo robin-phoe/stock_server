@@ -34,7 +34,7 @@
 def base_grade_com(base_grade):
     grade = 0
     # 基础日K分数
-    base_grade_power = 0.8
+    base_grade_power = 1.5
     if base_grade >= 20000:
         grade = 100
     elif base_grade >= 10000:
