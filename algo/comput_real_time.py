@@ -260,8 +260,8 @@ def hostory_com(date):
         return miu_trade_dic,bk_trade_dic
     def init(date):
         global s_buffer, b_buffer
-        s_buffer = stock_buffer(date)
-        s_buffer.init_monitor_buffer()
+        s_buffer = stock_buffer()
+        s_buffer.init_monitor_buffer(date)
         b_buffer = bk_buffer()
         b_buffer.init_bk_buffer()
         print('初始化完成。')
