@@ -170,7 +170,7 @@ class stock_buffer:
             sql = "select date_format(max(trade_date) ,'%Y-%m-%d') as trade_date from monitor"
             monitor_date = pub_uti_a.select_from_db(sql)[0][0]
         else:
-            monitor_date = set_date
+            monitor_date = (datetime.datetime.strptime(set_date,'%Y-%m-%d')-datetime.timedelta(days=1)).strftime('%Y-%m-%d')
         print('监控日期：',monitor_date)
         sql = "select M.monitor,I.stock_id,I.stock_name,M.grade,M.monitor_type,I.bk_name,I.bk_code from stock_informations I " \
               " INNER JOIN (select * from monitor  where trade_date = '{}') M" \
