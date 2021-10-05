@@ -8,6 +8,7 @@ import numpy as np
 import re
 import pub_uti_a
 import json
+from com_grade import compute_algo_grade
 
 logging.basicConfig(level=logging.CRITICAL, filename='../log/monitor.log', filemode='a',
                     format='%(asctime)s-%(levelname)5s: %(message)s')
@@ -132,7 +133,7 @@ class stock:
             "id":self.stock_id,
             "timestamp":self.timestamp,
             "name":self.stock_name,
-            "grade":self.increase * 15,
+            "grade":self.grade,
             "price":self.price,
             "increase":self.increase,
             "bk":self.bk_name,
@@ -150,32 +151,7 @@ class stock:
     inc超过理想区域后，其他分数总和越高，inc罚分越少，反之越多，以筛除虚拉回落，强势但高inc突破100分。分时做为入手信号，是总分的把控机制，inc未超出理想区域的总分压制在100一下，超出的要助力推出100，虚拉的要压下总分
     """
     def algo_com_grade(self):
-        self.grade = 0
-        #基础日K分数
-        base_grade_power = 0.8
-        base_grade = 0
-        if self.base_grade >= 20000:
-            base_grade = 100
-        elif self.base_grade >=10000:
-            base_grade = (self.base_grade - 10000)/100
-        self.grade += base_grade * base_grade_power
-        #板块分数
-        #大盘分数
-        # 分时涨幅分数（分数K线的一部分）
-        increase_power = 0.7
-        inc_grade = 0
-        if self.increase <= 0:
-            inc_grade = 0
-        elif 0 < self.increase < 2.5:
-            inc_grade = 100 * self.increase/2.5
-        elif 2.5 <= self.increase < 3.5:
-            inc_grade = 100
-        else:
-            pass
-        self.grade += inc_grade * increase_power
-        #临时
-        if self.increase >= 9.75:
-            self.grade = 150
+        self.grade = compute_algo_grade(self.base_grade,self.increase)
 class stock_buffer:
     def __init__(self):
         self.stock_dict = {}  # {stock_id:instance}
