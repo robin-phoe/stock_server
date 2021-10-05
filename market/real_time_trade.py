@@ -21,7 +21,7 @@ r.pubsub()
 获取单个页面股票数据
 {name:F14,最新价:F2,涨跌幅:F3,成交量:F5,ID:F12,成交额:F6,振幅:F7,最高:F15,最低:F16,今开:F17,昨收:F18,量比:F10,换手:F8,市盈(动):F9,市净率:F23}
 """
-def getOnePageStock():
+def getOnePageStock(timestamp):
     global count,r
     url = "http://18.push2.eastmoney.com/api/qt/clist/get?cb=jQuery112406268274658974922_1605597357094&pn=1" \
           "&pz=5000&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:13," \
@@ -38,7 +38,7 @@ def getOnePageStock():
     else:
         Data_json = json.loads(result[0])
         #print(Data_json)
-    time_trade_to_redis(Data_json)
+    time_trade_to_redis(Data_json,timestamp)
 
 
 """
@@ -75,13 +75,13 @@ day_market={
         }
     }
 """
-def time_trade_to_redis(Data_json):
+def time_trade_to_redis(Data_json,timestamp):
     for data in Data_json:
         # 清理可能为 - 的数据值
         for key in data:
             if data[key] == "-":
                 data[key] = 0
-        timestamp = datetime.datetime.now().timestamp()
+        # timestamp = datetime.datetime.now().timestamp()
         id = data["f12"]
         name = data["f14"]
         price = data["f2"]
@@ -119,7 +119,7 @@ def time_trade_to_redis(Data_json):
 获取日内板块信息
 {name:f14,id:f12,price:f2,increase:f3,total_value:total_value,turnover:f8,up:f104,down:f105}
 """
-def get_bk_info():
+def get_bk_info(timestamp):
     global r
     url = "http://44.push2.eastmoney.com/api/qt/clist/get?cb=jQuery112404219198714508219_1607384110344&pn=1&pz=100&po=1&np=1&" \
           "ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:90+t:2+f:!50&fields=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12," \
@@ -136,7 +136,7 @@ def get_bk_info():
     else:
         Data_json = json.loads(result[0])
         #print(Data_json)
-    bk_to_redis(Data_json)
+    bk_to_redis(Data_json,timestamp)
 
 """
 板块行情保存至redis
@@ -169,13 +169,13 @@ bk_day_market={
     }
 }
 """
-def bk_to_redis(Data_json):
+def bk_to_redis(Data_json,timestamp):
     for data in Data_json:
         # 清理可能为 - 的数据值
         for key in data:
             if data[key] == "-":
                 data[key] = 0
-        timestamp = datetime.datetime.now().timestamp()
+        # timestamp = datetime.datetime.now().timestamp()
         id = data["f12"]
         name = data["f14"]
         price = data["f2"]
@@ -213,8 +213,9 @@ def bk_to_redis(Data_json):
 def main():
     # print("时间1:",datetime.datetime.now().strftime("%H:%M:%S,%f"))
     # print("page:",page)
-    getOnePageStock()
-    get_bk_info()
+    timestamp = datetime.datetime.now().timestamp()
+    getOnePageStock(timestamp)
+    get_bk_info(timestamp)
 
 """
 日交易结束，redis分时行情保存到mysql
@@ -246,24 +247,9 @@ def save_to_mysql(date = None):
 
 
 """
-多进程执行获取行情
-pz单页全部显示，废弃多进程
+run
 """
-# def run():
-#     p = Pool(8)
-#     for i in range(220):
-#         p.apply_async(main, args=(str(i),))
-#     #    p.apply_async(main, args=("1",date,))
-#     #print("Waiting for all subprocesses done...")
-#     p.close()
-#     p.join()
-#     # market_tranfer()
-#     # print("All subprocesses done.")
-if __name__ == "__main__":
-    # run()
-    # main()
-    # save_to_mysql()
-
+def run():
     i=0
     end_trade_flush= False
     start_trade_flush = True
@@ -296,4 +282,10 @@ if __name__ == "__main__":
             end_trade_flush = False
             start_trade_flush = True
         time.sleep(1)
+if __name__ == "__main__":
+    run()
+    # main()
+    # save_to_mysql()
+
+
 
