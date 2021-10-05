@@ -235,6 +235,62 @@ def run():
         refresh()
         print('耗时：',datetime.datetime.now() - start_t)
 
+def hostory_com(date):
+    single_market = 'single_market'
+    bk_single_market = 'bk_single_market'
+    all_algo_monitor = 'all_algo_monitor'
+    algo_monitor = 'algo_monitor'
+    def clean():
+        r.hdel(single_market)
+        r.hdel(bk_single_market)
+        r.hdel(all_algo_monitor)
+        r.hdel(algo_monitor)
+    def select_from_db(date):
+        miu_trade_dic = {}
+        bk_trade_dic = {}
+        sql = "select * from miu_trade_data where trade_date = '{}'".format(date)
+        miu_trade_res = pub_uti_a.select_from_db(sql)
+        for stock in miu_trade_res:
+            miu_trade_dic[stock[0]] = json.loads(stock[1])
+        sql = "select * from bk_miu_data where trade_date = '{}'".format(date)
+        bk_trade_df_res = pub_uti_a.select_from_db(sql)
+        for bk in miu_trade_res:
+            bk_trade_dic[bk[0]] = json.loads(bk[1])
+        print('字典长度：',len(miu_trade_dic),len(bk_trade_dic))
+        return miu_trade_dic,bk_trade_dic
+    def init(date):
+        global s_buffer, b_buffer
+        s_buffer = stock_buffer(date)
+        s_buffer.init_monitor_buffer()
+        b_buffer = bk_buffer()
+        b_buffer.init_bk_buffer()
+        print('初始化完成。')
+    def refresh():
+        global s_buffer, b_buffer
+        s_buffer.get_redis_market()
+        b_buffer.refresh_market(s_buffer.new_market)
+        s_buffer.refresh_stocks(b_buffer.bk_obj_buffer)
+
+    clean()
+    init(date)
+    miu_trade_dic, bk_trade_dic = select_from_db(date)
+    len_dict = len(miu_trade_dic)
+
+    for i in range(len_dict):
+        for stock in miu_trade_dic:
+            miu_keys_list = miu_trade_dic.keys()
+            miu_content = miu_trade_dic[stock]
+            miu_new_market = miu_content[miu_keys_list[i]]
+            r.hset(single_market, id, json.dumps(miu_new_market, indent=2, ensure_ascii=False))
+        for bk in bk_trade_dic:
+            bk_keys_list = bk_trade_dic.keys()
+            bk_content = bk_trade_dic[bk]
+            bk_new_market = bk_content[bk_keys_list[i]]
+            r.hset(bk_single_market, id, json.dumps(bk_new_market, indent=2, ensure_ascii=False))
+        refresh()
+
+
 
 if __name__ == '__main__':
-    run()
+    # run()
+    hostory_com(date = '2021-09-30')
