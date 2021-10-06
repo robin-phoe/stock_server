@@ -99,6 +99,7 @@ def time_line_grade(df):
         inc_grade = 0
     #平均值,5分钟均线，条/分钟
     df['mean_5'] = df['increase'].rolling(5).mean()
+    df['mean_30'] = df['increase'].rolling(30).mean()
     df.fillna(0,inplace = True)
     #计算趋势（平均值走向，当前价格位次） 30
     trend_grade =0
