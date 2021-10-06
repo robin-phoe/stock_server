@@ -151,7 +151,7 @@ class stock:
     inc超过理想区域后，其他分数总和越高，inc罚分越少，反之越多，以筛除虚拉回落，强势但高inc突破100分。分时做为入手信号，是总分的把控机制，inc未超出理想区域的总分压制在100一下，超出的要助力推出100，虚拉的要压下总分
     """
     def algo_com_grade(self):
-        self.grade = compute_algo_grade(self.base_grade,self.increase)
+        self.grade = compute_algo_grade(self.base_grade,self.increase,self.bk_sort,self.bk_increase,self.in_sort)
 class stock_buffer:
     def __init__(self):
         self.stock_dict = {}  # {stock_id:instance}

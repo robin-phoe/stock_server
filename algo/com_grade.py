@@ -34,7 +34,7 @@
 def base_grade_com(base_grade):
     grade = 0
     # 基础日K分数
-    base_grade_power = 1.5
+    base_grade_power = 1
     if base_grade >= 20000:
         grade = 100
     elif base_grade >= 10000:
@@ -43,13 +43,44 @@ def base_grade_com(base_grade):
     return grade
 '''
 板块分数
+1:板块热度(板块实时热度(排行、inc、流入资金)，板块历史热度)
+2:个股在板块排名
+热度100 * 内排名权重
 '''
-def bk_grade():
-    pass
+def bk_grade(bk_sort,bk_inc,in_sort):
+    grade = 0
+    bk_grade_power = 0.5
+    ##板块实时热度
+    #inc 30
+    if bk_inc >= 3:
+        grade += 30
+    else:
+        grade += (bk_inc + 1) * 7.5
+    #bk_sort 30
+    if bk_sort <= 3:
+        grade += 30
+    elif bk_sort <= 7:
+        grade += 20
+    else:
+        grade += 30/((bk_sort - 7)^0.5) -10
+    #资金
+    grade += 40
+
+    #内排名 str
+    mul = -1/(float(in_sort)^2) + 1
+    if mul < 0.1:
+        mul = 0.1
+    grade += grade * mul
+    return grade
 '''
 大盘分数
 '''
 def market_grade():
+    pass
+'''
+timeline 分数
+'''
+def time_line_grade():
     pass
 '''
 increase涨幅控制
@@ -67,9 +98,10 @@ def inc_control(grade,inc):
         else:
             grade -= (inc - 2.5) * 8
     return grade
-def compute_algo_grade(base_grade,inc):
+def compute_algo_grade(base_grade,inc,bk_sort,bk_inc,in_sort):
     grade = 0
     grade += base_grade_com(base_grade)
+    grade += bk_grade(bk_sort,bk_inc,in_sort)
     grade = inc_control(grade, inc)
     return grade
 if __name__ == '__main__':
