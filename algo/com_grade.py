@@ -95,10 +95,11 @@ def inc_control(grade,inc):
         if grade > 100:
             grade = 100
     else:
-        if grade >= 90:
-            grade += (inc - 2.5) * 8
-        else:
-            grade -= (inc - 2.5) * 8
+        grade += (inc - 2.5) * 8
+        # if grade >= 90:
+        #     grade += (inc - 2.5) * 8
+        # else:
+        #     grade -= (inc - 2.5) * 8
     return grade
 def compute_algo_grade(base_grade,inc,bk_sort,bk_inc,in_sort):
     grade = 0
