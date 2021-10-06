@@ -1,4 +1,5 @@
 from fractions import Fraction
+import datetime
 #负责具体分数的计算
 '''
         self.grade = 0
@@ -81,9 +82,67 @@ def market_grade():
     pass
 '''
 timeline 分数
+计算前提：条/分钟行情
 '''
-def time_line_grade():
-    pass
+def time_line_grade(df):
+    grade = 0
+    time_line_power = 0.5
+    inc = df.loc[-1,'increase']
+    #根据涨幅加减分数 20
+    if inc < 0:
+        inc_grade = -6*inc
+    elif 0<inc<3.5:
+        inc_grade = 6*inc
+    else:
+        inc_grade = 0
+    #平均值,5分钟均线，条/分钟
+    df['mean_5'] = df['increase'].rolling(5).mean()
+    df.fillna(0,inplace = True)
+    last_index = len(df) -1
+    #计算趋势（平均值走向，当前价格位次） 30
+    trend_grade =0
+    if last_index > 20:
+        df['mean_shift_5'] = df['mean_5'].shift(5)
+        df['mean_shift_30'] = df['mean_5'].shift(30)
+        df.fillna(0, inplace=True)
+        df['mean_shift_5_delta'] = df['mean_5'] - df['mean_shift_5']
+        df['mean_shift_30_delta'] = df['mean_30'] - df['mean_shift_30']
+        trend_5 = df.loc[last_index,'mean_shift_5_delta']
+        trend_30 = df.loc[last_index,'mean_shift_30_delta']
+        #位次
+        price_list = df['price'].to_list()
+        price_list.sort(reverse=True)
+        rank = (price_list.index(df.loc[last_index,'price']) + 1)/(last_index+1)
+        if rank <= 1/3:
+            rank_grade = 15 * 2
+        elif rank <= 1/2:
+            rank_grade= 5 *2
+        else:
+            rank_grade = 0
+        trend_grade = rank_grade
+
+    #计算低于平均线的值，低于平均线的值大说明负向振荡剧烈 20
+    df['mean_delta'] = df['increase'] - df['mean_5']
+
+    #计算拉升速率 30
+    df['inc_delta_1'] = df['increase'] - df['increase'].shift(1)
+    df['inc_delta_3'] = df['increase'] - df['increase'].shift(3)
+    df.fillna(0, inplace=True)
+    #9点35前后分开，避开开盘情绪不稳定区
+    timestamp = float(df.loc[last_index,'timestamp'])
+    time = datetime.datetime.fromtimestamp(timestamp).strftime('%H:%M:%S')
+    accelerate_grade = 0
+    if df.loc[last_index,'inc_delta_1'] >= 0.8 or df.loc[last_index,'inc_delta_3'] >= 2:
+        delta_1_grade = df.loc[last_index,'inc_delta_1'] * 10
+        delta_3_grade = df.loc[last_index, 'inc_delta_3'] * 5
+        accelerate_grade = delta_1_grade if delta_1_grade>delta_3_grade else delta_3_grade
+    if time < '09:35:00':
+        accelerate_grade *= 1/3
+    #快速拉升去除下跌罚分
+    if accelerate_grade >= 10:
+        inc_grade = 0
+    grade = (inc_grade + trend_grade +accelerate_grade)
+    return grade
 '''
 increase涨幅控制
 涨幅在黄金区域控制不破百，突破黄金区域后，看低股则压低分数，看板股则助力突破100
@@ -102,13 +161,15 @@ def inc_control(grade,inc):
         # else:
         #     grade -= (inc - 2.5) * 8
     return grade
-def compute_algo_grade(base_grade,inc,bk_sort,bk_inc,in_sort,time_list,all_inc):
+def compute_algo_grade(base_grade,inc,bk_sort,bk_inc,in_sort,time_line_df):
     grade = 0
     ba_grade = base_grade_com(base_grade)
     b_grade = bk_grade(bk_sort,bk_inc,in_sort)
-    grade = ba_grade + b_grade
-    print('縂分：{}， k綫分數：{}, 板塊分數：{}'.format(grade,ba_grade,b_grade))
-    grade = inc_control(grade, inc)
+    tl_grade = time_line_grade(time_line_df)
+    # grade = ba_grade + b_grade + tl_grade
+    # print('縂分：{}， k綫分數：{}, 板塊分數：{}'.format(grade,ba_grade,b_grade))
+    grade = tl_grade
+    # grade = inc_control(grade, inc)
     return grade
 if __name__ == '__main__':
     pass
