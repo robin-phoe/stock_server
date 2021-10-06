@@ -366,7 +366,7 @@ def get_grade_all_day(request):
     target_date = get_last_monitor_date(request_param["target_date"])
     sql = "select stock_id from monitor where trade_date = '{}' and monitor_type like '{}%'".format(target_date,type_map[monitor_type])
     id_tuple = pub_uti_a.select_from_db(sql) #((id,),())
-    fill_lenth = 480
+    fill_lenth = 240
     for id_tup in id_tuple:
         id = id_tup[0]
         if id not in all_algo:
