@@ -241,11 +241,13 @@ def hostory_com(date):
     bk_single_market = 'bk_single_market'
     all_algo_monitor = 'all_algo_monitor'
     algo_monitor = 'algo_monitor'
+    day_market = 'day_market'
     def clean():
         r.delete(single_market)
         r.delete(bk_single_market)
         r.delete(all_algo_monitor)
         r.delete(algo_monitor)
+        r.delete(day_market)
     def select_from_db(date):
         miu_trade_dic = {}
         bk_trade_dic = {}
@@ -283,6 +285,13 @@ def hostory_com(date):
             miu_keys_list = list(miu_content.keys())
             miu_new_market = miu_content[miu_keys_list[i]]
             r.hset(single_market, stock, json.dumps(miu_new_market, indent=2, ensure_ascii=False))
+            if (r.hexists(name=day_market, key=stock)):
+                all_market_str = r.hget(day_market, id)
+                all_market_json = json.loads(all_market_str)
+            else:
+                all_market_json ={}
+            all_market_json[miu_new_market['timestamp']] = miu_new_market
+            r.hset(day_market, id, json.dumps(all_market_json, indent=2, ensure_ascii=False))
         for bk in bk_trade_dic:
             bk_content = bk_trade_dic[bk]
             bk_keys_list = list(bk_content.keys())
