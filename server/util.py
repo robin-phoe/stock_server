@@ -165,7 +165,7 @@ def time_line(request):
     return_data = {}
 
     hash_name = "day_market"
-    fill_lenth = 480
+    fill_lenth = 240
     for id_tup in id_tuple:
         id = id_tup[0]
         time_list = []
