@@ -68,7 +68,8 @@ def bk_grade(bk_sort,bk_inc,in_sort):
 
     #内排名 str
     in_sort = Fraction(in_sort)
-    mul = float(-1/(in_sort**2) + 1)
+    #-x**2
+    mul = float(-(in_sort**2) + 1)
     if mul < 0.1:
         mul = 0.1
     grade = grade * mul * bk_grade_power
