@@ -35,10 +35,10 @@ def base_grade_com(base_grade):
     grade = 0
     # 基础日K分数
     base_grade_power = 0.7
-    if base_grade >= 20000:
+    if base_grade >= 30000:
         grade = 100
     elif base_grade >= 10000:
-        grade = (base_grade - 10000) / 100
+        grade = (base_grade - 10000) / 200
     grade = grade * base_grade_power
     return grade
 '''
@@ -71,7 +71,7 @@ def bk_grade(bk_sort,bk_inc,in_sort):
     mul = float(-1/(in_sort**2) + 1)
     if mul < 0.1:
         mul = 0.1
-    grade += grade * mul
+    grade += grade * mul * bk_grade_power
     return grade
 '''
 大盘分数
