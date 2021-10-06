@@ -114,6 +114,8 @@ class stock:
         self.bk_sort =None
         self.in_sort =None
         self.concept_list=[]
+        self.single_all_inc = {}
+        self.time_list = []
 
     def refresh_data(self,market,bk_obj_buffer):
         bk = bk_obj_buffer[self.bk_code]
@@ -127,6 +129,8 @@ class stock:
         self.concept_list = [self.bk_name] #临时
         self.hot_concept = bk.name  #临时
         self.hot_concept_increase = bk.increase  #临时
+        self.time_list.append(self.timestamp)
+        self.single_all_inc[self.timestamp] = self.increase
         #计算grade
         self.algo_com_grade()
         self.return_data = {
@@ -151,7 +155,8 @@ class stock:
     inc超过理想区域后，其他分数总和越高，inc罚分越少，反之越多，以筛除虚拉回落，强势但高inc突破100分。分时做为入手信号，是总分的把控机制，inc未超出理想区域的总分压制在100一下，超出的要助力推出100，虚拉的要压下总分
     """
     def algo_com_grade(self):
-        self.grade = compute_algo_grade(self.base_grade,self.increase,self.bk_sort,self.bk_increase,self.in_sort)
+        self.grade = compute_algo_grade(self.base_grade,self.increase,self.bk_sort,self.bk_increase,self.in_sort,
+                                        self.time_list,self.single_all_inc)
 class stock_buffer:
     def __init__(self):
         self.stock_dict = {}  # {stock_id:instance}

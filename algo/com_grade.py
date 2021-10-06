@@ -101,7 +101,7 @@ def inc_control(grade,inc):
         # else:
         #     grade -= (inc - 2.5) * 8
     return grade
-def compute_algo_grade(base_grade,inc,bk_sort,bk_inc,in_sort):
+def compute_algo_grade(base_grade,inc,bk_sort,bk_inc,in_sort,time_list,all_inc):
     grade = 0
     ba_grade = base_grade_com(base_grade)
     b_grade = bk_grade(bk_sort,bk_inc,in_sort)
