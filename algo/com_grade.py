@@ -1,5 +1,6 @@
 from fractions import Fraction
 import datetime
+import copy
 #负责具体分数的计算
 '''
         self.grade = 0
@@ -87,7 +88,8 @@ timeline 分数
 def time_line_grade(df):
     grade = 0
     time_line_power = 0.5
-    inc = df.loc[-1,'increase']
+    last_index = len(df) - 1
+    inc = df.loc[last_index,'increase']
     #根据涨幅加减分数 20
     if inc < 0:
         inc_grade = -6*inc
@@ -98,7 +100,6 @@ def time_line_grade(df):
     #平均值,5分钟均线，条/分钟
     df['mean_5'] = df['increase'].rolling(5).mean()
     df.fillna(0,inplace = True)
-    last_index = len(df) -1
     #计算趋势（平均值走向，当前价格位次） 30
     trend_grade =0
     if last_index > 20:
@@ -165,7 +166,8 @@ def compute_algo_grade(base_grade,inc,bk_sort,bk_inc,in_sort,time_line_df):
     grade = 0
     ba_grade = base_grade_com(base_grade)
     b_grade = bk_grade(bk_sort,bk_inc,in_sort)
-    tl_grade = time_line_grade(time_line_df)
+    df = copy.deepcopy(time_line_df)
+    tl_grade = time_line_grade(df)
     # grade = ba_grade + b_grade + tl_grade
     # print('縂分：{}， k綫分數：{}, 板塊分數：{}'.format(grade,ba_grade,b_grade))
     grade = tl_grade
