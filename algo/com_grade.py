@@ -34,7 +34,7 @@ from fractions import Fraction
 def base_grade_com(base_grade):
     grade = 0
     # 基础日K分数
-    base_grade_power = 1
+    base_grade_power = 0.7
     if base_grade >= 20000:
         grade = 100
     elif base_grade >= 10000:
@@ -88,8 +88,9 @@ increase涨幅控制
 涨幅在黄金区域控制不破百，突破黄金区域后，看低股则压低分数，看板股则助力突破100
 '''
 def inc_control(grade,inc):
-    if inc >= 2.5:
-        pass
+    if inc < 2.5:
+        if grade >= 90:
+            grade = 89.99
     if inc <= 3.5:
         if grade > 100:
             grade = 100
