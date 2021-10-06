@@ -291,7 +291,7 @@ def hostory_com(date):
             else:
                 all_market_json ={}
             all_market_json[miu_new_market['timestamp']] = miu_new_market
-            r.hset(day_market, id, json.dumps(all_market_json, indent=2, ensure_ascii=False))
+            r.hset(day_market, stock, json.dumps(all_market_json, indent=2, ensure_ascii=False))
         for bk in bk_trade_dic:
             bk_content = bk_trade_dic[bk]
             bk_keys_list = list(bk_content.keys())
