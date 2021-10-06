@@ -1,4 +1,4 @@
-
+from fractions import Fraction
 #负责具体分数的计算
 '''
         self.grade = 0
@@ -62,12 +62,13 @@ def bk_grade(bk_sort,bk_inc,in_sort):
     elif bk_sort <= 7:
         grade += 20
     else:
-        grade += 30/((bk_sort - 7)^0.5) -10
+        grade += 30/((bk_sort - 7)**0.5) -10
     #资金
     grade += 40
 
     #内排名 str
-    mul = -1/(float(in_sort)^2) + 1
+    in_sort = Fraction(in_sort)
+    mul = float(-1/(in_sort**2) + 1)
     if mul < 0.1:
         mul = 0.1
     grade += grade * mul
