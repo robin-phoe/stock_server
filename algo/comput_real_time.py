@@ -286,7 +286,7 @@ def hostory_com(date):
             miu_new_market = miu_content[miu_keys_list[i]]
             r.hset(single_market, stock, json.dumps(miu_new_market, indent=2, ensure_ascii=False))
             if (r.hexists(name=day_market, key=stock)):
-                all_market_str = r.hget(day_market, id)
+                all_market_str = r.hget(day_market, stock)
                 all_market_json = json.loads(all_market_str)
             else:
                 all_market_json ={}

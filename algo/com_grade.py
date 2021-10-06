@@ -64,14 +64,14 @@ def bk_grade(bk_sort,bk_inc,in_sort):
     else:
         grade += 30/((bk_sort - 7)**0.5) -10
     #资金
-    grade += 40
+    grade += 20
 
     #内排名 str
     in_sort = Fraction(in_sort)
     mul = float(-1/(in_sort**2) + 1)
     if mul < 0.1:
         mul = 0.1
-    grade += grade * mul * bk_grade_power
+    grade = grade * mul * bk_grade_power
     return grade
 '''
 大盘分数
@@ -102,8 +102,10 @@ def inc_control(grade,inc):
     return grade
 def compute_algo_grade(base_grade,inc,bk_sort,bk_inc,in_sort):
     grade = 0
-    grade += base_grade_com(base_grade)
-    grade += bk_grade(bk_sort,bk_inc,in_sort)
+    ba_grade = base_grade_com(base_grade)
+    b_grade = bk_grade(bk_sort,bk_inc,in_sort)
+    grade = ba_grade + b_grade
+    print('縂分：{}， k綫分數：{}, 板塊分數：{}'.format(grade,ba_grade,b_grade))
     grade = inc_control(grade, inc)
     return grade
 if __name__ == '__main__':
