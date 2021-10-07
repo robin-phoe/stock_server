@@ -91,9 +91,7 @@ def time_line_grade(df):
     last_index = len(df) - 1
     inc = df.loc[last_index,'increase']
     #根据涨幅加减分数 20
-    if inc < 0:
-        inc_grade = -6*inc
-    elif 0<inc<3.5:
+    if inc < 3.5:
         inc_grade = 6*inc
     else:
         inc_grade = 0
@@ -115,13 +113,15 @@ def time_line_grade(df):
         price_list = df['price'].to_list()
         price_list.sort(reverse=True)
         rank = (price_list.index(df.loc[last_index,'price']) + 1)/(last_index+1)
-        if rank <= 1/3:
-            rank_grade = 15 * 2
-        elif rank <= 1/2:
-            rank_grade= 5 *2
-        else:
-            rank_grade = 0
-        trend_grade = rank_grade
+        #暂时停掉，尚不成熟
+
+        # if rank <= 1/3:
+        #     rank_grade = 15 * 2
+        # elif rank <= 1/2:
+        #     rank_grade= 5 *2
+        # else:
+        #     rank_grade = 0
+        # trend_grade = rank_grade
 
     #计算低于平均线的值，低于平均线的值大说明负向振荡剧烈 20
     df['mean_delta'] = df['increase'] - df['mean_5']
@@ -143,7 +143,7 @@ def time_line_grade(df):
     #快速拉升去除下跌罚分
     if accelerate_grade >= 10:
         inc_grade = 0
-    grade = (inc_grade + trend_grade +accelerate_grade)
+    grade = (inc_grade + trend_grade +accelerate_grade) * time_line_power
     return grade
 '''
 increase涨幅控制
