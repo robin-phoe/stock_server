@@ -133,6 +133,9 @@ class stock:
         self.hot_concept = bk.name  #临时
         self.hot_concept_increase = bk.increase  #临时
         # print('len(self.time_line_df):',len(self.time_line_df),self.time_line_df)
+        self.volume_rate = single_market['volume_rate']
+        self.turnover = single_market['turnover']
+        self.volume = single_market['volume']
         self.time_line_df.loc[len(self.time_line_df)] = [self.timestamp,self.increase,self.price,
                                                          self.volume_rate,self.turnover,self.volume]
         # print('df:',self.time_line_df)
