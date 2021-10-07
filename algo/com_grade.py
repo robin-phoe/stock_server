@@ -89,16 +89,56 @@ def time_line_grade(df):
     grade = 0
     time_line_power = 0.5
     last_index = len(df) - 1
-    inc = df.loc[last_index,'increase']
+    timestamp = float(df.loc[last_index, 'timestamp'])
+    time = datetime.datetime.fromtimestamp(timestamp).strftime('%H:%M:%S')
+    #平均值,5分钟均线，条/分钟
+    df['inc_mean'] = df['increase'].expanding(1).mean()
+    df['volume_mean'] = df['increase'].expanding(1).mean()
+    df['mean_5'] = df['increase'].rolling(5).mean()
+    df['mean_30'] = df['increase'].rolling(30).mean()
+    df.fillna(0,inplace = True)
+
+    inc = df.loc[last_index, 'increase']
     #根据涨幅加减分数 20
     if inc < 3.5:
         inc_grade = 6*inc
     else:
         inc_grade = 0
-    #平均值,5分钟均线，条/分钟
-    df['mean_5'] = df['increase'].rolling(5).mean()
-    df['mean_30'] = df['increase'].rolling(30).mean()
-    df.fillna(0,inplace = True)
+    # 计算拉升速率 30
+    df['inc_delta_1'] = df['increase'] - df['increase'].shift(1)
+    df['inc_delta_3'] = df['increase'] - df['increase'].shift(3)
+    df.fillna(0, inplace=True)
+    # 9点35前后分开，避开开盘情绪不稳定区
+    accelerate_grade = 0
+    if df.loc[last_index, 'inc_delta_1'] >= 0.8 or df.loc[last_index, 'inc_delta_3'] >= 2:
+        delta_1_grade = df.loc[last_index, 'inc_delta_1'] * 10
+        delta_3_grade = df.loc[last_index, 'inc_delta_3'] * 5
+        accelerate_grade = delta_1_grade if delta_1_grade > delta_3_grade else delta_3_grade
+    if time < '09:35:00':
+        accelerate_grade *= 1 / 3
+    # 快速拉升去除下跌罚分
+    if accelerate_grade >= 10 and inc_grade < 0:
+        inc_grade = 0
+    #加入量比 10
+    vr_grade = 0
+    volume_rate = df.loc[last_index,'volume_rate']
+    if volume_rate < 0.8:
+        vr_grade = 0
+    elif volume_rate < 1.5:
+        vr_grade = 3
+    elif volume_rate < 2.5:
+        vr_grade = 10
+    elif volume_rate < 5:
+        vr_grade = 8
+    elif volume_rate < 8:
+        vr_grade =3
+    else:
+        vr_grade = 0
+    # if time < '09:35:00':
+    #加入分时量
+    #加入换手率
+    #加入换手金额
+
     #计算趋势（平均值走向，当前价格位次） 30
     trend_grade =0
     if last_index > 20:
@@ -126,24 +166,8 @@ def time_line_grade(df):
     #计算低于平均线的值，低于平均线的值大说明负向振荡剧烈 20
     df['mean_delta'] = df['increase'] - df['mean_5']
 
-    #计算拉升速率 30
-    df['inc_delta_1'] = df['increase'] - df['increase'].shift(1)
-    df['inc_delta_3'] = df['increase'] - df['increase'].shift(3)
-    df.fillna(0, inplace=True)
-    #9点35前后分开，避开开盘情绪不稳定区
-    timestamp = float(df.loc[last_index,'timestamp'])
-    time = datetime.datetime.fromtimestamp(timestamp).strftime('%H:%M:%S')
-    accelerate_grade = 0
-    if df.loc[last_index,'inc_delta_1'] >= 0.8 or df.loc[last_index,'inc_delta_3'] >= 2:
-        delta_1_grade = df.loc[last_index,'inc_delta_1'] * 10
-        delta_3_grade = df.loc[last_index, 'inc_delta_3'] * 5
-        accelerate_grade = delta_1_grade if delta_1_grade>delta_3_grade else delta_3_grade
-    if time < '09:35:00':
-        accelerate_grade *= 1/3
-    #快速拉升去除下跌罚分
-    if accelerate_grade >= 10:
-        inc_grade = 0
-    grade = (inc_grade + trend_grade +accelerate_grade) * time_line_power
+
+    grade = (inc_grade + trend_grade +accelerate_grade + vr_grade) * time_line_power
     return grade
 '''
 increase涨幅控制

@@ -114,7 +114,11 @@ class stock:
         self.bk_sort =None
         self.in_sort =None
         self.concept_list=[]
-        self.time_line_df = pd.DataFrame(columns=('timestamp','increase','price'))
+        self.volume_rate = None #量比
+        self.turnover = None
+        self.volume = None
+        self.time_line_df = pd.DataFrame(columns=('timestamp','increase','price','volume_rate','turnover',
+                                                  'volume'))
 
     def refresh_data(self,market,bk_obj_buffer):
         bk = bk_obj_buffer[self.bk_code]
@@ -129,7 +133,8 @@ class stock:
         self.hot_concept = bk.name  #临时
         self.hot_concept_increase = bk.increase  #临时
         # print('len(self.time_line_df):',len(self.time_line_df),self.time_line_df)
-        self.time_line_df.loc[len(self.time_line_df)] = [self.timestamp,self.increase,self.price]
+        self.time_line_df.loc[len(self.time_line_df)] = [self.timestamp,self.increase,self.price,
+                                                         self.volume_rate,self.turnover,self.volume]
         # print('df:',self.time_line_df)
         #计算grade
         self.algo_com_grade()
