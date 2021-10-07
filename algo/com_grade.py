@@ -122,6 +122,7 @@ def time_line_grade(df):
     #加入量比 10
     vr_grade = 0
     volume_rate = df.loc[last_index,'volume_rate']
+    print('volume_rate:',volume_rate)
     if volume_rate < 0.8:
         vr_grade = 0
     elif volume_rate < 1.5:
