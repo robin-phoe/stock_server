@@ -166,7 +166,7 @@ def time_line_grade(df):
     #计算低于平均线的值，低于平均线的值大说明负向振荡剧烈 20
     df['mean_delta'] = df['increase'] - df['mean_5']
 
-
+    print('inc_grade:{}, trend_grade:{},accelerate_grade:{},vr_grade:{},'.format(inc_grade , trend_grade ,accelerate_grade, vr_grade))
     grade = (inc_grade + trend_grade +accelerate_grade + vr_grade) * time_line_power
     return grade
 '''
