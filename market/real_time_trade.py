@@ -91,7 +91,7 @@ def time_trade_to_redis(Data_json,timestamp):
         open_price = data["f17"]
         volume_rate = data["f10"]
         turnover = data["f8"]
-        volume_money = data["f16"]
+        volume_money = data["f6"]
         volume = data['f5']
 
 
