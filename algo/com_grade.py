@@ -194,9 +194,9 @@ def compute_algo_grade(base_grade,inc,bk_sort,bk_inc,in_sort,time_line_df):
     b_grade = bk_grade(bk_sort,bk_inc,in_sort)
     df = copy.deepcopy(time_line_df)
     tl_grade = time_line_grade(df)
-    # grade = ba_grade + b_grade + tl_grade
-    # print('縂分：{}， k綫分數：{}, 板塊分數：{}'.format(grade,ba_grade,b_grade))
-    grade = tl_grade
+    grade = ba_grade + b_grade + tl_grade
+    print('縂分：{}， k綫分數：{}, 板塊分數：{},分时分數：{}'.format(grade,ba_grade,b_grade,tl_grade))
+    # grade = tl_grade
     # grade = inc_control(grade, inc)
     return grade
 if __name__ == '__main__':

@@ -315,5 +315,5 @@ def hostory_com(date):
 
 
 if __name__ == '__main__':
-    # run()
-    hostory_com(date = '2021-09-30')
+    run()
+    # hostory_com(date = '2021-09-30')
