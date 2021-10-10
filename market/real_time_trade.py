@@ -25,14 +25,14 @@ def getOnePageStock(timestamp):
     global count,r
     url = "http://18.push2.eastmoney.com/api/qt/clist/get?cb=jQuery112406268274658974922_1605597357094&pn=1" \
           "&pz=5000&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:13," \
-          "m:0+t:80,m:1+t:2,m:1+t:23&fields=f2,f3,f4,f5,f8,f10,f12,f14,f15,f16,f17&_=1605597357108"
+          "m:0+t:80,m:1+t:2,m:1+t:23&fields=f2,f3,f4,f5,f6,f8,f10,f12,f14,f15,f16,f17&_=1605597357108"
     #url = "http://18.push2.eastmoney.com/api/qt/clist/get?cb=jQuery112406268274658974922_1605597357094&pn=2&pz=20&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:13,m:0+t:80,m:1+t:2,m:1+t:23&fields=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152&_=1605597357108"
     #print("url:",url)
     header={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36"}
     response = requests.get(url,headers=header)
     text=response.text
     result = re.findall("\[.*?\]", text)
-    print("result:",result)
+    # print("result:",result)
     if len(result) == 0:
         return 0
     else:
@@ -100,7 +100,7 @@ def time_trade_to_redis(Data_json,timestamp):
         # 判断id 在hash中是否存在
         if (r.hexists(name=day_market, key=id)):
             old_market = json.loads(r.hget(single_market,id))
-            # print('volume_check:',old_market["volume"],old_market["name"])
+            print('volume_check:',old_market["volume"],old_market["name"])
             volume -= old_market["volume"]
             new_market = {"timestamp":timestamp,"id": id, "name": name, "price": price, "increase": increase, "volume": volume,
                           "volume_rate": volume_rate, "turnover": turnover, "volume_money": volume_money}
@@ -130,7 +130,7 @@ def get_bk_info(timestamp):
     response = requests.get(url,headers=header)
     text=response.text
     result = re.findall("\[.*?\]", text)
-    print("result bk:",result)
+    # print("result bk:",result)
     if len(result) == 0:
         return 0
     else:
@@ -230,6 +230,7 @@ def save_to_mysql(date = None):
         sql = "INSERT INTO miu_trade_data (stock_id,trade_date,data) values ('{0}','{1}','{2}')".format(id,date,all_market_json[id])
         sv.add_sql(sql)
     sv.commit()
+    print('股票分時數據存儲完成')
     #存储algo分时数据
     all_market_json = r.hgetall('all_algo_monitor')
     sv = pub_uti_a.save()
@@ -237,6 +238,7 @@ def save_to_mysql(date = None):
         sql = "INSERT INTO algo_miu_data (stock_id,trade_date,data) values ('{0}','{1}','{2}')".format(id,date,all_market_json[id])
         sv.add_sql(sql)
     sv.commit()
+    print('algo分時數據存儲完成')
     #存储板块分时数据
     all_market_json = r.hgetall('bk_day_market')
     sv = pub_uti_a.save()
@@ -244,6 +246,7 @@ def save_to_mysql(date = None):
         sql = "INSERT INTO bk_miu_data (bk_id,trade_date,data) values ('{0}','{1}','{2}')".format(id,date,all_market_json[id])
         sv.add_sql(sql)
     sv.commit()
+    print('板塊分時數據存儲完成')
 
 
 """
@@ -283,9 +286,9 @@ def run():
             start_trade_flush = True
         time.sleep(1)
 if __name__ == "__main__":
-    run()
+    # run()
     # main()
-    # save_to_mysql()
+    save_to_mysql('2021-10-08')
 
 
 
