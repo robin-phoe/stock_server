@@ -286,9 +286,9 @@ def run():
             start_trade_flush = True
         time.sleep(1)
 if __name__ == "__main__":
-    # run()
+    run()
     # main()
-    save_to_mysql('2021-10-08')
+    # save_to_mysql('2021-10-08')
 
 
 
