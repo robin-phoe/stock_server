@@ -100,7 +100,7 @@ def time_trade_to_redis(Data_json,timestamp):
         # 判断id 在hash中是否存在
         if (r.hexists(name=day_market, key=id)):
             old_market = json.loads(r.hget(single_market,id))
-            print('volume_check:',old_market["volume"],old_market["name"])
+            # print('volume_check:',old_market["volume"],old_market["name"])
             volume -= old_market["volume"]
             new_market = {"timestamp":timestamp,"id": id, "name": name, "price": price, "increase": increase, "volume": volume,
                           "volume_rate": volume_rate, "turnover": turnover, "volume_money": volume_money}
