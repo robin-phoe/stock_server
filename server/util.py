@@ -408,7 +408,7 @@ def sort_dict(d,reverse=True):
         value_list.append(tup[1])
     return tup_list,key_list,value_list
 
-def get_start_date(target_date,long = 20):
+def get_start_date(target_date,long = 30):
     sql = "SELECT date_format(T.trade_date ,'%Y-%m-%d') as trade_date FROM (SELECT distinct(trade_date) FROM stock_trade_data where trade_date<= '{1}') T " \
           " order by trade_date desc limit {0},1".format(long,target_date)
     print('start_date sql:',sql)
