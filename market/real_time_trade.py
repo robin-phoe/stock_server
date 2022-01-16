@@ -259,9 +259,10 @@ def run():
     while True:
         time_now = datetime.datetime.now().strftime("%H:%M:%S")
         weekday = datetime.datetime.now().weekday()
-        if weekday < 5 and  time_now >= "09:20:00" and time_now <= "15:01:00" :
+        if True:
+        # if weekday < 5 and  time_now >= "09:20:00" and time_now <= "15:01:00" :
             #集合竞价、午盘休息暂停
-            if  (time_now > "11:31:00" and time_now <= "13:00:00") or (time_now > "09:25:00" and time_now < "09:30:00") :
+            if  (time_now > "11:31:00" and time_now <= "13:00:00")  :
                 time.sleep(1)
                 continue
             # 开盘清理redis
