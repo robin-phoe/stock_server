@@ -58,3 +58,5 @@ def grade_all_day(request):
     response_json = util.get_grade_all_day(request)
     print('monitor耗时：', datetime.datetime.now() - grade_start)
     return JsonResponse(response_json)
+
+#写一个函数，json转字典

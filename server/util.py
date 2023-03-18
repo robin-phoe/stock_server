@@ -335,6 +335,8 @@ def get_algo(request):
         algo_single = r.hget(hash_name,id)
         if algo_single != None:
             algo_single = json.loads(algo_single)
+            if isinstance(algo_single['grade'],str):
+                continue
             sort_dic[id] = algo_single['grade']
             content_dic[id] = algo_single
     t,keys,v = sort_dict(sort_dic)
@@ -400,6 +402,7 @@ def get_last_monitor_date(target_date):
 
 def sort_dict(d,reverse=True):
     #reverse=True 正序
+    print('debug:',d.items())
     tup_list = sorted(d.items(), key=lambda item:item[1], reverse=reverse) #[(),()]
     key_list = []
     value_list = []

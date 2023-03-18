@@ -43,14 +43,17 @@ class bk_buffer:
         self.refresh_bk_instance(stock_market)
     def sort_bk(self):
         for bk_code in self.bk_set:
-            self.bk_increase[bk_code] = json.loads(self.bk_new_market[bk_code])['increase']
+            res = self.bk_new_market.get(bk_code,None)
+            if res:
+                self.bk_increase[bk_code] = json.loads(res)['increase']
         mem_list = sorted(self.bk_increase.items(), key=lambda d: d[1], reverse=True)  # 倒序
         for i in range(len(mem_list)):
             self.bk_rank[mem_list[i][0]] = i+1
     def refresh_bk_instance(self,stock_market):
         # print('err:', self.bk_obj_buffer,self.bk_increase,self.bk_rank )
         for bk_code in self.bk_set:
-            self.bk_obj_buffer[bk_code].real_time_refresh(stock_market,self.bk_increase[bk_code],self.bk_rank[bk_code])
+            if bk_code in self.bk_obj_buffer and bk_code in self.bk_increase and bk_code in self.bk_rank:
+                self.bk_obj_buffer[bk_code].real_time_refresh(stock_market,self.bk_increase[bk_code],self.bk_rank[bk_code])
     def get_bk_instance(self,bk_name):
         if bk_name not in self.bk_obj_buffer:
             return False
@@ -91,7 +94,10 @@ class bk:
             self.member_rank[mem_list[i][0]] = "{}/{}".format(str(i+1),self.mem_count)
     def get_rank_in_bk(self,stock_id):
         # print("member_rank",self.members,self.member_rank)
-        return self.member_rank[stock_id]
+        if stock_id in self.member_rank:
+            return self.member_rank[stock_id]
+        else:
+            return -1
     def get_bk_info(self):
         return (self.name,self.id,self.member,self.increase,self.amount)
 class stock:
@@ -205,6 +211,8 @@ class stock_buffer:
     def refresh_stocks(self,bk_buffer):
         # print("new_market",self.new_market)
         for id in self.monitor_stockid_buffer:
+            if id not in self.stock_obj_buffer or id not in self.new_market:
+                continue
             self.stock_obj_buffer[id].refresh_data(self.new_market[id],bk_buffer)
             #存储algo
             stock_message = self.stock_obj_buffer[id].return_data
@@ -238,17 +246,23 @@ def run():
     init_flag = True
     ps = r.pubsub()
     ps.subscribe(['trigger_flag'])
-    for item in ps.listen():
-        time_now = datetime.datetime.now().strftime("%H:%M:%S")
-        if time_now >= "09:00:00" and time_now <= "10:00:00":
-            if init_flag:
-                init()
-                init_flag = False
-        else:
-            init_flag = True
+    # for item in ps.listen():
+    #     time_now = datetime.datetime.now().strftime("%H:%M:%S")
+    #     if time_now >= "09:00:00" and time_now <= "10:00:00":
+    #         if init_flag:
+    #             init()
+    #             init_flag = False
+    #     else:
+    #         init_flag = True
+    #     start_t = datetime.datetime.now()
+    #     refresh()
+    #     print('耗时：',datetime.datetime.now() - start_t)
+    while True:
         start_t = datetime.datetime.now()
         refresh()
-        print('耗时：',datetime.datetime.now() - start_t)
+        print('耗时：', datetime.datetime.now() - start_t)
+        time.sleep(10)
+
 
 def hostory_com(date):
     single_market = 'single_market'
@@ -317,4 +331,4 @@ def hostory_com(date):
 
 if __name__ == '__main__':
     run()
-    # hostory_com(date = '2021-09-30')
+    # hostory_com(date = '2022-07-13')
